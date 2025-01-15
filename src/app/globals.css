@@ -2,20 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 348 47% 25%; /* Cor base escura para o fundo */
+    --foreground: 348 47% 100%; /* Texto branco */
+    --card: 348 47% 75%; /* Cartão com cor mais clara */
+    --card-foreground: 348 47% 20%; /* Texto escuro no cartão */
+    --primary: 348 47% 40%; /* Cor principal (vermelho suave) */
+    --primary-foreground: 348 47% 95%; /* Texto claro sobre a cor principal */
+    --secondary: 348 47% 50%; /* Cor secundária suave */
+    --secondary-foreground: 348 47% 100%; /* Texto claro sobre a cor secundária */
+    --muted: 348 47% 60%; /* Cor mais apagada */
+    --muted-foreground: 348 47% 50%; /* Texto escuro sobre a cor apagada */
+    --accent: 348 47% 35%; /* Cor de destaque mais escura */
+    --accent-foreground: 348 47% 95%; /* Texto claro sobre o destaque */
+    --destructive: 348 47% 45%; /* Cor destrutiva suave */
+    --destructive-foreground: 348 47% 100%; /* Texto claro sobre destrutiva */
+    --border: 348 47% 50%; /* Cor de borda */
+    --input: 348 47% 60%; /* Cor de input suave */
+    --ring: 348 47% 70%; /* Cor do anel */
+    --popover: 348 47% 25%; /* Popover com fundo mais escuro */
+    --popover-foreground: 348 47% 100%; /* Texto claro no popover */
+    --chart-1: 12 76% 50%; /* Cor do gráfico 1 */
+    --chart-2: 173 58% 50%; /* Cor do gráfico 2 */
+    --chart-3: 197 37% 30%; /* Cor do gráfico 3 */
+    --chart-4: 43 74% 60%; /* Cor do gráfico 4 */
+    --chart-5: 27 87% 60%; /* Cor do gráfico 5 */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 348 47% 90%; /* Fundo claro para o modo dark */
+    --foreground: 348 47% 10%; /* Texto escuro */
+    --card: 348 47% 30%; /* Cartão escuro */
+    --card-foreground: 348 47% 90%; /* Texto claro no cartão escuro */
+    --primary: 348 47% 20%; /* Cor principal escura */
+    --primary-foreground: 348 47% 90%; /* Texto claro sobre o principal escuro */
+    --secondary: 348 47% 40%; /* Cor secundária escura */
+    --secondary-foreground: 348 47% 90%; /* Texto claro sobre a cor secundária escura */
+    --muted: 348 47% 50%; /* Cor mais apagada no modo dark */
+    --muted-foreground: 348 47% 80%; /* Texto claro sobre a cor apagada */
+    --accent: 348 47% 60%; /* Cor de destaque no modo dark */
+    --accent-foreground: 348 47% 10%; /* Texto escuro sobre o destaque */
+    --destructive: 348 47% 40%; /* Cor destrutiva escura */
+    --destructive-foreground: 348 47% 90%; /* Texto claro sobre destrutiva */
+    --border: 348 47% 60%; /* Borda escura no modo dark */
+    --input: 348 47% 50%; /* Cor de input no modo dark */
+    --ring: 348 47% 30%; /* Anel mais escuro */
+    --popover: 348 47% 90%; /* Popover claro no modo dark */
+    --popover-foreground: 348 47% 10%; /* Texto escuro no popover */
+    --chart-1: 12 76% 40%; /* Gráfico 1 escuro */
+    --chart-2: 173 58% 35%; /* Gráfico 2 escuro */
+    --chart-3: 197 37% 20%; /* Gráfico 3 escuro */
+    --chart-4: 43 74% 50%; /* Gráfico 4 escuro */
+    --chart-5: 27 87% 50%; /* Gráfico 5 escuro */
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
