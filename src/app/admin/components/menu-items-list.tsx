@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { formatCurrency } from "@/utils/format"
 
 interface MenuItem {
-  _id: string
+  id: string
   name: string
   description: string
   price: number
@@ -24,6 +24,10 @@ interface MenuItem {
     name: string
   }
   createdAt: string
+  promotion?: {
+    price: number
+    inPromotion: boolean
+  }
 }
 
 interface MenuItemsListProps {
@@ -59,7 +63,7 @@ export function MenuItemsList({ items }: MenuItemsListProps) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -72,7 +76,7 @@ export function MenuItemsList({ items }: MenuItemsListProps) {
         </TableHeader>
         <TableBody>
           {items.map((item) => (
-            <TableRow key={item._id}>
+            <TableRow key={item.id}>
               <TableCell>{item.name}</TableCell>
               <TableCell>{item.category.name}</TableCell>
               <TableCell>{formatCurrency(item.price)}</TableCell>
@@ -83,8 +87,8 @@ export function MenuItemsList({ items }: MenuItemsListProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => handleDelete(item._id)}
-                  disabled={isLoading === item._id}
+                  onClick={() => handleDelete(item.id)}
+                  disabled={isLoading === item.id}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

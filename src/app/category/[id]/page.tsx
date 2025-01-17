@@ -1,18 +1,24 @@
+import { getCategory } from '@/api/categories'
+import { getMenuItems } from '@/api/menuItems'
 import { MenuItemCard } from "@/components/menu-item-card"
 import { connectToMongoDB } from "@/lib/db"
-import { Category } from "@/models/Category"
-import { MenuItem } from "@/models/MenuItem"
-import { notFound } from "next/navigation"
+import { notFound } from 'next/navigation'
 
 export default async function CategoryPage({ params }: { params: { id: string } }) {
   await connectToMongoDB()
 
-  const category = await Category.findById(params.id).lean()
-  if (!category || Array.isArray(category)) {
-    notFound()
+  const { id: categoryId } = await params;
+
+  if (!categoryId) {
+    notFound();
   }
 
-  const items = await MenuItem.find({ category: params.id }).lean()
+  const category = await getCategory(categoryId);
+  const { items } = await getMenuItems(categoryId);
+
+  if (!category) {
+    notFound();
+  }
 
   return (
     <>
@@ -20,14 +26,14 @@ export default async function CategoryPage({ params }: { params: { id: string } 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <MenuItemCard
-            key={item._id.toString()}
+            key={item.id}
             item={{
-              id: item._id.toString(),
+              id: item.id,
               name: item.name,
               description: item.description,
               price: item.price,
               image: item.image || "/placeholder.svg?height=200&width=300",
-              category: params.id,
+              category: category.id,
               promotion: item.promotion || false
             }}
           />

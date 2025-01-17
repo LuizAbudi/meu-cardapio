@@ -4,7 +4,6 @@ let cachedConnection: Connection | null = null;
 
 export async function connectToMongoDB() {
   if (cachedConnection) {
-    console.log("Using cached db connection");
     return cachedConnection;
   }
   try {

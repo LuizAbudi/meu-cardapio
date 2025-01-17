@@ -15,7 +15,7 @@ import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Category {
-  _id: string
+  id: string
   name: string
   createdAt: string
 }
@@ -64,7 +64,7 @@ export function CategoriesList({ categories }: CategoriesListProps) {
         </TableHeader>
         <TableBody>
           {categories.map((category) => (
-            <TableRow key={category._id}>
+            <TableRow key={category.id}>
               <TableCell>{category.name}</TableCell>
               <TableCell>
                 {new Date(category.createdAt).toLocaleDateString('pt-BR')}
@@ -73,8 +73,8 @@ export function CategoriesList({ categories }: CategoriesListProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => handleDelete(category._id)}
-                  disabled={isLoading === category._id}
+                  onClick={() => handleDelete(category.id)}
+                  disabled={isLoading === category.id}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

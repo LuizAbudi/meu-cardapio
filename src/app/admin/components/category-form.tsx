@@ -43,8 +43,6 @@ export function CategoryForm() {
     try {
       const formData = new FormData();
       formData.append("name", values.name);
-
-      // Envia a URL da imagem (base64 ou URL externa)
       formData.append("image", values.image);
 
       const result = await createCategory(formData);
@@ -73,7 +71,7 @@ export function CategoryForm() {
 
   const handleFileChange = useCallback(() => {
     if (fileInputRef.current) {
-      fileInputRef.current.click(); // Dispara a seleção do arquivo ao clicar no botão
+      fileInputRef.current.click();
     }
   }, []);
 
@@ -84,11 +82,10 @@ export function CategoryForm() {
         const reader = new FileReader();
         reader.onload = (e) => {
           if (typeof e.target?.result === 'string') {
-            // Aqui, o arquivo é convertido para uma URL base64
-            form.setValue('image', e.target.result); // Salva a URL base64 no formulário
+            form.setValue('image', e.target.result);
           }
         }
-        reader.readAsDataURL(file); // Converte o arquivo para base64
+        reader.readAsDataURL(file);
       }
     }
   }, [form]);
@@ -123,7 +120,7 @@ export function CategoryForm() {
               <FormField
                 control={form.control}
                 name="image"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Imagem</FormLabel>
                     <FormControl>
@@ -137,7 +134,7 @@ export function CategoryForm() {
                           accept="image/*"
                           className="hidden"
                           ref={fileInputRef}
-                          onChange={handleFileSelection} // Função para processar o arquivo
+                          onChange={handleFileSelection}
                         />
                       </div>
                     </FormControl>

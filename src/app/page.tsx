@@ -1,6 +1,6 @@
+import { getCategories } from '@/api/categories'
 import { CategoryCard } from "@/components/category-card"
 import { connectToMongoDB } from '@/lib/db'
-import { Category } from '@/models/Category'
 
 // const categories = [
 //   {
@@ -37,7 +37,7 @@ import { Category } from '@/models/Category'
 
 export default async function Home() {
   await connectToMongoDB()
-  const categories = await Category.find().sort({ name: 1 }).lean()
+  const { categories } = await getCategories();
 
   return (
     <>
@@ -45,9 +45,9 @@ export default async function Home() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {categories.map((category) => (
           <CategoryCard
-            key={category._id.toString()}
+            key={category.id}
             category={{
-              id: category._id.toString(),
+              id: category.id,
               name: category.name,
               image: category.image || "/placeholder.svg?height=200&width=300"
             }}

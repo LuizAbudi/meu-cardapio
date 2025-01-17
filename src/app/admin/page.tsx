@@ -3,33 +3,7 @@ import { CategoryForm } from "./components/category-form"
 import { MenuItemForm } from "./components/menu-item-form"
 import { CategoriesList } from "./components/categories-list"
 import { MenuItemsList } from "./components/menu-items-list"
-import { connectToMongoDB } from "@/lib/db"
-import { Category } from "@/models/Category"
-import { MenuItem } from "@/models/MenuItem"
-
-async function getAdminData() {
-  await connectToMongoDB()
-
-  const [categories, items] = await Promise.all([
-    Category.find().sort({ name: 1 }).lean(),
-    MenuItem.find().populate('category').sort({ name: 1 }).lean()
-  ])
-
-  return {
-    categories: categories.map(cat => ({
-      ...cat,
-      _id: cat._id.toString()
-    })),
-    items: items.map(item => ({
-      ...item,
-      _id: item._id.toString(),
-      category: {
-        ...item.category,
-        _id: item.category._id.toString()
-      }
-    }))
-  }
-}
+import { getAdminData } from './actions'
 
 export default async function AdminPage() {
   const { categories, items } = await getAdminData()

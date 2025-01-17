@@ -19,8 +19,7 @@ export interface MenuItem {
   updatedAt: Date
   promotion?: {
     price: number
-    start: Date
-    end: Date
+    inPromotion: boolean
   }
 }
 
