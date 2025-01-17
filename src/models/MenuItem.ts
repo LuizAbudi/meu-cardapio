@@ -5,6 +5,10 @@ const menuItemSchema = new mongoose.Schema({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   image: { type: String },
+  promotion: { 
+    price: { type: Number, required: true },
+    inPromotion: { type: Boolean, required: true }
+  },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }
 }, {
   timestamps: true

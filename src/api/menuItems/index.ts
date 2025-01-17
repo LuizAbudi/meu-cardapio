@@ -18,3 +18,28 @@ export async function getMenuItems(categoryId: string) {
     })),
   }
 }
+
+export async function getAllMenuItens() {
+  const items = await MenuItem.find().populate('category').sort({ name: 1 }).lean()
+
+  return {
+     items: items.map((item) => ({
+      _id: String(item._id),
+      id: String(item._id),
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      createdAt: item.createdAt.toISOString(),
+      category: {
+        name: item.category.name,
+      },
+      promotion: item.promotion
+        ? {
+            price: item.promotion.price,
+            inPromotion: item.promotion.inPromotion,
+          }
+        : undefined,
+    })),
+  };
+}
+  

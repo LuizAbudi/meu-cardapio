@@ -53,6 +53,16 @@ const menuItemSchema = z.object({
     .positive("O preço deve ser maior que zero"),
   image: z.string().url("Insira uma URL válida para a imagem"),
   categoryId: z.string().min(1, "Selecione uma categoria"),
+  promotion: z.object({
+    price: z.number().min(0, "O preço da promoção deve ser maior que zero"),
+    inPromotion: z.boolean(),
+  })
+    .refine(data => {
+      return data.inPromotion ? data.price < data.price : true;
+    }, {
+      message: "O preço da promoção deve ser menor que o preço do item",
+      path: ["promotion.price"],
+    }),
 })
 
 type MenuItemFormValues = z.infer<typeof menuItemSchema>
@@ -66,45 +76,51 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
       description: "",
       price: 0,
       image: "",
+      promotion: {
+        price: 0,
+        inPromotion: false,
+      },
       categoryId: "",
     },
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isImageUrl, setIsImageUrl] = useState(false);
+  const [isPromotion, setIsPromotion] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function onSubmit(values: MenuItemFormValues) {
-    setIsSubmitting(true)
+  const onSubmit = useCallback(async (values: MenuItemFormValues) => {
+    setIsSubmitting(true);
     try {
-      const formData = new FormData()
-      formData.append("name", values.name)
-      formData.append("description", values.description)
-      formData.append("price", values.price.toString())
-      formData.append("image", values.image)
-      formData.append("categoryId", values.categoryId)
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('description', values.description);
+      formData.append('price', values.price.toString());
+      formData.append('image', values.image);
+      formData.append('categoryId', values.categoryId);
+      formData.append('promotion[price]', values.promotion.price.toString());
+      formData.append('promotion[inPromotion]', values.promotion.inPromotion.toString());
 
-      const result = await createMenuItem(formData)
-
+      const result = await createMenuItem(formData);
       if (result.success) {
         toast({
           title: "Item criado",
           description: "O item foi criado com sucesso",
-        })
-        form.reset()
+        });
+        form.reset();
       } else {
-        throw new Error(result.error)
+        throw new Error(result.error);
       }
     } catch (error) {
       toast({
         title: "Erro",
         description: "Erro ao criar item",
         variant: "destructive",
-      })
-      console.error(error)
+      });
+      console.error(error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  }, [form, toast]);
 
   const handleCheckedChange = useCallback(() => {
     setIsImageUrl(prev => !prev);
@@ -130,6 +146,10 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
       }
     }
   }, [form]);
+
+  const handleCheckedPromotion = useCallback(() => {
+    setIsPromotion(prev => !prev);
+  }, []);
 
   return (
     <Card>
@@ -220,6 +240,9 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                           ref={fileInputRef}
                           onChange={handleFileSelection}
                         />
+                        <Label className="ml-2">
+                          {form.getValues('image') ? 'Imagem selecionada' : 'Nenhuma imagem selecionada'}
+                        </Label>
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -241,6 +264,41 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                 )}
               />
             )}
+            <div>
+              <Label>Esse produto está em promoção?</Label>
+              <div className='mt-2'>
+                <Switch id="isPromotion" checked={isPromotion} onCheckedChange={handleCheckedPromotion} />
+              </div>
+            </div>
+            {isPromotion ? (
+              <FormField
+                control={form.control}
+                name="promotion.price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço da promoção</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-white"
+                        type="text"
+                        placeholder="R$ 0,00"
+                        {...field}
+                        onChange={(e) => {
+                          const formattedValue = formatCurrencyInput(e.target.value);
+                          const numericValue = parseFloat(
+                            formattedValue.replace(/[^0-9.]/g, "")
+                          );
+                          field.onChange(numericValue);
+                        }}
+                        value={formatCurrencyInput(field.value.toString())}
+                        required
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
             <FormField
               control={form.control}
               name="categoryId"

@@ -39,7 +39,7 @@ export function CategoryForm() {
   const [isImageUrl, setIsImageUrl] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function onSubmit(values: CategoryFormValues) {
+  const onSubmit = useCallback(async (values: CategoryFormValues) => {
     try {
       const formData = new FormData();
       formData.append("name", values.name);
@@ -55,6 +55,7 @@ export function CategoryForm() {
       } else {
         throw new Error(result.error);
       }
+      console.log(result);
     } catch (error) {
       toast({
         title: "Erro",
@@ -63,7 +64,7 @@ export function CategoryForm() {
       });
       console.error(error);
     }
-  }
+  }, [form, toast]);
 
   const handleCheckedChange = useCallback(() => {
     setIsImageUrl(prev => !prev);

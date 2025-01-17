@@ -14,9 +14,16 @@ export async function createCategory(formData: FormData) {
       image: formData.get('image') || undefined,
     })
 
+    const simpleCategory = {
+      id: String(category._id),
+      name: category.name,
+      createdAt: category.createdAt.toISOString(),
+      image: category.image ? category.image.toString() : "/placeholder.svg?height=200&width=300",
+    }
+
     revalidatePath('/admin')
     revalidatePath('/')
-    return { success: true, data: category.toJSON() }
+    return { success: true, data: simpleCategory }
   } catch (error) {
     console.error('Error creating category:', error)
     return { success: false, error: 'Erro ao criar categoria' }
@@ -35,9 +42,19 @@ export async function createMenuItem(formData: FormData) {
       category: formData.get('categoryId'),
     })
 
+    const simpleItem = {
+      id: String(item._id),
+      name: item.name,
+      description: item.description,
+      price: item.price / 100,
+      image: item.image ? item.image.toString() : "/placeholder.svg?height=200&width=300",
+      category: formData.get('categoryId'),
+      promotion: item.promotion || false
+    }
+
     revalidatePath('/admin')
     revalidatePath(`/category/${formData.get('categoryId')}`)
-    return { success: true, data: item }
+    return { success: true, data: simpleItem }
   } catch (error) {
     console.error('Error creating menu item:', error)
     return { success: false, error: 'Erro ao criar item' }
@@ -117,39 +134,6 @@ export async function updateMenuItem(id: string, formData: FormData) {
     console.error('Error updating menu item:', error)
     return { success: false, error: 'Erro ao atualizar item' }
   }
-}
-
-export async function getAdminData() {
-  await connectToMongoDB();
-
-  const [categories, items] = await Promise.all([
-    Category.find().sort({ name: 1 }).lean(),
-    MenuItem.find().populate('category').sort({ name: 1 }).lean(),
-  ]);
-
-  return {
-    categories: categories.map((cat) => ({
-      id: String(cat._id),
-      name: cat.name,
-      createdAt: cat.createdAt.toISOString(),
-    })),
-    items: items.map((item) => ({
-      id: String(item._id),
-      name: item.name,
-      description: item.description,
-      price: item.price,
-      createdAt: item.createdAt.toISOString(),
-      category: {
-        name: item.category.name,
-      },
-      promotion: item.promotion
-        ? {
-            price: item.promotion.price,
-            inPromotion: item.promotion.inPromotion,
-          }
-        : undefined,
-    })),
-  };
 }
 
 

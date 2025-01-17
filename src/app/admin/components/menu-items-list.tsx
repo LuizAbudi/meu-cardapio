@@ -79,7 +79,7 @@ export function MenuItemsList({ items }: MenuItemsListProps) {
             <TableRow key={item.id}>
               <TableCell>{item.name}</TableCell>
               <TableCell>{item.category.name}</TableCell>
-              <TableCell>{formatCurrency(item.price)}</TableCell>
+              <TableCell>{formatCurrency(item.price / 100)}</TableCell>
               <TableCell>
                 {new Date(item.createdAt).toLocaleDateString('pt-BR')}
               </TableCell>

@@ -3,10 +3,12 @@ import { CategoryForm } from "./components/category-form"
 import { MenuItemForm } from "./components/menu-item-form"
 import { CategoriesList } from "./components/categories-list"
 import { MenuItemsList } from "./components/menu-items-list"
-import { getAdminData } from './actions'
+import { getCategories } from '@/api/categories'
+import { getAllMenuItens } from '@/api/menuItems'
 
 export default async function AdminPage() {
-  const { categories, items } = await getAdminData()
+  const { categories } = await getCategories();
+  const { items } = await getAllMenuItens();
 
   return (
     <div className="space-y-6">
