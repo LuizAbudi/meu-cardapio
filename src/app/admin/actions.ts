@@ -34,12 +34,19 @@ export async function createMenuItem(formData: FormData) {
   try {
     await connectToMongoDB()
 
+    const inPromotion = formData.get("promotion[inPromotion]") === "true"
+    const promotionPrice = formData.get("promotion[price]")
+
     const item = await MenuItem.create({
       name: formData.get('name'),
       description: formData.get('description'),
       price: Number(formData.get('price')),
       image: formData.get('image') || undefined,
       category: formData.get('categoryId'),
+      promotion: {
+        inPromotion,
+        price: inPromotion ? Number(promotionPrice) : undefined,
+      },
     })
 
     const simpleItem = {
@@ -49,7 +56,10 @@ export async function createMenuItem(formData: FormData) {
       price: item.price / 100,
       image: item.image ? item.image.toString() : "/placeholder.svg?height=200&width=300",
       category: formData.get('categoryId'),
-      promotion: item.promotion || false
+      promotion: item.promotion.inPromotion ? {
+        price: item.promotion.price / 100,
+        inPromotion: true,
+      } : undefined,
     }
 
     revalidatePath('/admin')

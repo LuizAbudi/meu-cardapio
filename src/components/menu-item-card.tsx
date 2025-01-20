@@ -15,7 +15,10 @@ interface MenuItemCardProps {
     price: number
     image: string
     category: string
-    promotion: boolean
+    promotion?: {
+      price: number
+      inPromotion: boolean
+    }
   }
 }
 
@@ -35,14 +38,31 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{item.name}</span>
-          <span className="text-primary">{formatCurrency(item.price)}</span>
+          <div className="flex flex-col items-end">
+            {item.promotion?.inPromotion ? (
+              <>
+                <span className="text-sm line-through text-muted-foreground">{formatCurrency(item.price)}</span>
+                <span className="text-primary font-bold">{formatCurrency(item.promotion.price)}</span>
+              </>
+            ) : (
+              <span className="text-primary">{formatCurrency(item.price)}</span>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">{item.description}</p>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={() => addItem(item)}>
+        <Button
+          className="w-full"
+          onClick={() =>
+            addItem({
+              ...item,
+              price: item.promotion?.inPromotion ? item.promotion.price : item.price,
+            })
+          }
+        >
           <Plus className="mr-2 h-4 w-4" />
           Adicionar ao Carrinho
         </Button>

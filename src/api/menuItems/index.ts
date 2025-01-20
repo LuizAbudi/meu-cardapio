@@ -14,7 +14,10 @@ export async function getMenuItems(categoryId: string) {
       price: item.price / 100,
       image: item.image || "/placeholder.svg?height=200&width=300",
       category: categoryId,
-      promotion: item.promotion || false
+      promotion: {
+        price: item.promotion?.price / 100,
+        inPromotion: item.promotion?.inPromotion,
+      }
     })),
   }
 }
@@ -26,6 +29,7 @@ export async function getAllMenuItens() {
      items: items.map((item) => ({
       _id: String(item._id),
       id: String(item._id),
+      image: item.image,
       name: item.name,
       description: item.description,
       price: item.price,

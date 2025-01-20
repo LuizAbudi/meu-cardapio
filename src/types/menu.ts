@@ -5,7 +5,10 @@ export interface MenuItem {
   price: number
   image: string
   category: string
-  promotion: boolean
+  promotion?: {
+    price: number
+    inPromotion: boolean
+  }
 }
 
 export interface Category {
