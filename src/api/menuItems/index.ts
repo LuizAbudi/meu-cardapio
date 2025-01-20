@@ -12,7 +12,7 @@ export async function getMenuItems(categoryId: string) {
       name: item.name,
       description: item.description,
       price: item.price / 100,
-      image: item.image || "/placeholder.svg?height=200&width=300",
+      image: item.image,
       category: categoryId,
       promotion: {
         price: item.promotion?.price / 100,
@@ -32,14 +32,14 @@ export async function getAllMenuItens() {
       image: item.image,
       name: item.name,
       description: item.description,
-      price: item.price,
+      price: item.price / 100,
       createdAt: item.createdAt.toISOString(),
       category: {
         name: item.category.name,
       },
       promotion: item.promotion
         ? {
-            price: item.promotion.price,
+            price: item.promotion.price / 100,
             inPromotion: item.promotion.inPromotion,
           }
         : undefined,

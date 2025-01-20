@@ -11,7 +11,7 @@ export async function getCategories() {
       id: String(cat._id),
       name: cat.name,
       createdAt: cat.createdAt.toISOString(),
-      image: cat.image || "/placeholder.svg?height=200&width=300",
+      image: cat.image,
     })),
   }  
 }
@@ -29,6 +29,6 @@ export async function getCategory(id: string) {
     id: String(category._id),
     name: category.name,
     createdAt: category.createdAt.toISOString(),
-    image: category.image || "/placeholder.svg?height=200&width=300",
+    image: category.image,
   };
 }

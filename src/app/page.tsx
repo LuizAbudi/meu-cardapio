@@ -49,7 +49,7 @@ export default async function Home() {
             category={{
               id: category.id,
               name: category.name,
-              image: category.image || "/placeholder.svg?height=200&width=300"
+              image: category.image
             }}
           />
         ))}

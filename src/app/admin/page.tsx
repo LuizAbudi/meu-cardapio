@@ -1,14 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CategoryForm } from "./components/category-form"
 import { MenuItemForm } from "./components/menu-item-form"
-import { CategoriesList } from "./components/categories-list"
-import { MenuItemsList } from "./components/menu-items-list"
 import { getCategories } from '@/api/categories'
-import { getAllMenuItens } from '@/api/menuItems'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default async function AdminPage() {
   const { categories } = await getCategories();
-  const { items } = await getAllMenuItens();
 
   return (
     <div className="space-y-6">
@@ -18,6 +16,9 @@ export default async function AdminPage() {
           Gerencie as categorias e itens do seu cardápio
         </p>
       </div>
+      <Link href="/admin/myproducts">
+        <Button>Meus Produtos</Button>
+      </Link>
 
       <Tabs defaultValue="categories">
         <TabsList>
@@ -26,11 +27,11 @@ export default async function AdminPage() {
         </TabsList>
         <TabsContent value="categories" className="space-y-4">
           <CategoryForm />
-          <CategoriesList categories={categories} />
+          {/* <CategoriesList categories={categories} /> */}
         </TabsContent>
         <TabsContent value="items" className="space-y-4">
           <MenuItemForm categories={categories} />
-          <MenuItemsList items={items} />
+          {/* <MenuItemsList items={items} /> */}
         </TabsContent>
       </Tabs>
     </div>

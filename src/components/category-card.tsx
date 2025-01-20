@@ -14,7 +14,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
     <Link href={`/category/${category.id}`}>
       <div className="group relative overflow-hidden rounded-lg">
         <Image
-          src={category.image || "/placeholder.svg?height=200&width=300"}
+          src={category.image || "/placeholder-image.jpg"}
           alt={category.name}
           width={300}
           height={200}

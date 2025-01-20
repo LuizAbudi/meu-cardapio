@@ -18,7 +18,7 @@ export async function createCategory(formData: FormData) {
       id: String(category._id),
       name: category.name,
       createdAt: category.createdAt.toISOString(),
-      image: category.image ? category.image.toString() : "/placeholder.svg?height=200&width=300",
+      image: category.image ? category.image.toString() : "/placeholder-image.jpg",
     }
 
     revalidatePath('/admin')
@@ -54,7 +54,7 @@ export async function createMenuItem(formData: FormData) {
       name: item.name,
       description: item.description,
       price: item.price / 100,
-      image: item.image ? item.image.toString() : "/placeholder.svg?height=200&width=300",
+      image: item.image ? item.image.toString() : "/placeholder-image.jpg",
       category: formData.get('categoryId'),
       promotion: item.promotion.inPromotion ? {
         price: item.promotion.price / 100,
@@ -134,11 +134,28 @@ export async function updateMenuItem(id: string, formData: FormData) {
         price: Number(formData.get('price')),
         image: formData.get('image') || undefined,
         category: formData.get('categoryId'),
+        promotion: {
+          inPromotion: formData.get("promotion[inPromotion]") === "true",
+          price: formData.get("promotion[price]") ? Number(formData.get("promotion[price]")) : undefined,
+        },
       }, { new: true })
+
+    const simpleItem = {
+      id: String(item._id),
+      name: item.name,
+      description: item.description,
+      price: item.price / 100,
+      image: item.image ? item.image.toString() : "/placeholder-image.jpg",
+      category: formData.get('categoryId'),
+      promotion: item.promotion.inPromotion ? {
+        price: item.promotion.price / 100,
+        inPromotion: true,
+      } : undefined,
+    }
 
     revalidatePath('/admin')
     revalidatePath(`/category/${formData.get('categoryId')}`)
-    return { success: true, data: item }
+    return { success: true, data: simpleItem }
   }
   catch (error) {
     console.error('Error updating menu item:', error)

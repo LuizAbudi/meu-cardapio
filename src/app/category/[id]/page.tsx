@@ -32,7 +32,7 @@ export default async function CategoryPage({ params }: { params: { id: string } 
               name: item.name,
               description: item.description,
               price: item.price,
-              image: item.image || "/placeholder.svg?height=200&width=300",
+              image: item.image,
               category: category.id,
               promotion: item.promotion || false
             }}

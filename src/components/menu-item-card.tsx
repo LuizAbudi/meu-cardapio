@@ -29,7 +29,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
     <Card className="overflow-hidden">
       <div className="relative h-48">
         <Image
-          src={item.image || "/placeholder.svg?height=200&width=300"}
+          src={item.image}
           alt={item.name}
           fill
           className="object-cover"
