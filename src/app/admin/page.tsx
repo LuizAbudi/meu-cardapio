@@ -27,11 +27,9 @@ export default async function AdminPage() {
         </TabsList>
         <TabsContent value="categories" className="space-y-4">
           <CategoryForm />
-          {/* <CategoriesList categories={categories} /> */}
         </TabsContent>
         <TabsContent value="items" className="space-y-4">
           <MenuItemForm categories={categories} />
-          {/* <MenuItemsList items={items} /> */}
         </TabsContent>
       </Tabs>
     </div>
