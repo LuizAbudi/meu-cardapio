@@ -30,7 +30,7 @@ export async function connectToMongoDB(): Promise<Connection> {
   }
 
   if (!cached.promise) {
-    console.log(`Attempting MongoDB connection to ${process.env.MONGODB_URI}`);
+    console.log('Attempting MongoDB connection');
     cached.promise = mongoose
       .connect(process.env.MONGODB_URI)
       .then((mongoose) => mongoose.connection);
