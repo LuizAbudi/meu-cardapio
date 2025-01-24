@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -31,6 +31,10 @@ const menuItemSchema = z
     price: z
       .number({ invalid_type_error: "O preço deve ser um número" })
       .positive("O preço deve ser maior que zero"),
+    halfPrice: z
+      .number({ invalid_type_error: "O preço da meia porção deve ser um número" })
+      .positive("O preço da meia porção deve ser maior que zero")
+      .optional(),
     image: z.string().url("Insira uma URL válida para a imagem"),
     categoryId: z.string().min(1, "Selecione uma categoria"),
     promotion: z.object({
@@ -66,6 +70,7 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
   const [isImageUrl, setIsImageUrl] = useState(false)
   const [isPromotion, setIsPromotion] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [halfPrice, setHalfPrice] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const form = useForm<MenuItemFormValues>({
@@ -74,6 +79,7 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
       name: item?.name || "",
       description: item?.description || "",
       price: (item?.price ?? 0) * 100,
+      halfPrice: (item?.halfPrice ?? 0) * 100,
       image: item?.image || "",
       promotion: {
         price: item?.promotion?.price || 0,
@@ -121,6 +127,7 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
       formData.append('name', data.name)
       formData.append('description', data.description)
       formData.append('price', data.price.toString())
+      formData.append('halfPrice', data.halfPrice?.toString() || '')
       formData.append('image', data.image)
       formData.append('categoryId', data.categoryId)
 
@@ -137,6 +144,21 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
       setIsSubmitting(false)
     }
   }
+
+  const verifyHalfPrice = useCallback((categoryName: string) => {
+    if (categoryName === "Porções") {
+      setHalfPrice(true)
+    } else {
+      setHalfPrice(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const categoryName = categories.find(cat => cat.id === form.getValues('categoryId'))?.name
+    if (categoryName) {
+      verifyHalfPrice(categoryName)
+    }
+  }, [form, categories, verifyHalfPrice])
 
   if (!item) return null
 
@@ -300,7 +322,10 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                   <FormControl>
                     <Select
                       value={field.value}
-                      onValueChange={(value) => field.onChange(value)}
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        verifyHalfPrice(categories.find(cat => cat.id === value)?.name ?? '')
+                      }}
                     >
                       <SelectTrigger className='bg-white text-black'>
                         <SelectValue />
@@ -318,6 +343,33 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                 </FormItem>
               )}
             />
+            {halfPrice ? (
+              <FormField
+                control={form.control}
+                name="halfPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço da meia porção</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-white text-black"
+                        type="text"
+                        {...field}
+                        onChange={(e) => {
+                          const formattedValue = formatCurrencyInput(e.target.value)
+                          const numericValue = parseFloat(
+                            formattedValue.replace(/[^0-9.]/g, "")
+                          )
+                          field.onChange(numericValue)
+                        }}
+                        value={formatCurrencyInput((field.value ?? 0).toString())}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Salvando..." : "Salvar"}
             </Button>

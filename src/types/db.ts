@@ -13,6 +13,7 @@ export interface MenuItem {
   name: string
   description: string
   price: number
+  halfPrice: number
   image?: string
   categoryId: ObjectId
   createdAt: Date
@@ -36,4 +37,5 @@ export interface OrderItem {
   itemName: string
   quantity: number
   price: number
+  halfPrice: number
 }

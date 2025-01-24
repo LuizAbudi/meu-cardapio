@@ -4,6 +4,7 @@ interface OrderItem extends Document {
   itemName: string;
   quantity: number;
   price: number;
+  halfPrice: number
 }
 
 const orderItemSchema = new Schema<OrderItem>({

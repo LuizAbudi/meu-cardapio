@@ -41,6 +41,7 @@ export async function createMenuItem(formData: FormData) {
       name: formData.get('name'),
       description: formData.get('description'),
       price: Number(formData.get('price')),
+      halfPrice: Number(formData.get('halfPrice')),
       image: formData.get('image') || undefined,
       category: formData.get('categoryId'),
       promotion: {
@@ -54,6 +55,7 @@ export async function createMenuItem(formData: FormData) {
       name: item.name,
       description: item.description,
       price: item.price / 100,
+      halfPrice: item.halfPrice / 100,
       image: item.image ? item.image.toString() : "/placeholder-image.jpg",
       category: formData.get('categoryId'),
       promotion: item.promotion.inPromotion ? {
@@ -132,6 +134,7 @@ export async function updateMenuItem(id: string, formData: FormData) {
         name: formData.get('name'),
         description: formData.get('description'),
         price: Number(formData.get('price')),
+        halfPrice: Number(formData.get('halfPrice')),
         image: formData.get('image') || undefined,
         category: formData.get('categoryId'),
         promotion: {
@@ -145,6 +148,7 @@ export async function updateMenuItem(id: string, formData: FormData) {
       name: item.name,
       description: item.description,
       price: item.price / 100,
+      halfPrice: item.halfPrice / 100,
       image: item.image ? item.image.toString() : "/placeholder-image.jpg",
       category: formData.get('categoryId'),
       promotion: item.promotion.inPromotion ? {

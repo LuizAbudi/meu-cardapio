@@ -12,6 +12,7 @@ export async function getMenuItems(categoryId: string) {
       name: item.name,
       description: item.description,
       price: item.price / 100,
+      halfPrice: item.halfPrice / 100,
       image: item.image,
       category: categoryId,
       promotion: {
@@ -33,6 +34,7 @@ export async function getAllMenuItens() {
       name: item.name,
       description: item.description,
       price: item.price / 100,
+      halfPrice: item.halfPrice / 100 ,
       createdAt: item.createdAt.toISOString(),
       category: {
         name: item.category.name,

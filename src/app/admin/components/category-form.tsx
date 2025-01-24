@@ -55,7 +55,6 @@ export function CategoryForm() {
       } else {
         throw new Error(result.error);
       }
-      console.log(result);
     } catch (error) {
       toast({
         title: "Erro",

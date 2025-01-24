@@ -136,6 +136,12 @@ export default function FilteredProducts({ initialItems, categories }: FilteredP
                         currency: "BRL",
                       }).format(item.price)}
                     </p>
+                    <p className="font-medium">
+                      {new Intl.NumberFormat("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      }).format(item.halfPrice)}
+                    </p>
                     <div className="flex space-x-2">
                       <Button variant="ghost" size="icon" onClick={() => setEditingItem(item)}>
                         <Pencil className="h-4 w-4" />

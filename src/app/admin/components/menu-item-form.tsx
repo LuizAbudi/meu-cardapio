@@ -52,6 +52,9 @@ const menuItemSchema = z
     price: z
       .number({ invalid_type_error: "O preço deve ser um número" })
       .positive("O preço deve ser maior que zero"),
+    halfPrice: z
+      .number({ invalid_type_error: "O preço da meia deve ser um número" })
+      .positive("O preço da meia deve ser maior que zero"),
     image: z.string().url("Insira uma URL válida para a imagem"),
     categoryId: z.string().min(1, "Selecione uma categoria"),
     promotion: z.object({
@@ -93,6 +96,7 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
       name: "",
       description: "",
       price: 0,
+      halfPrice: 0,
       image: "",
       promotion: {
         price: 0,
@@ -104,6 +108,7 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isImageUrl, setIsImageUrl] = useState(false);
   const [isPromotion, setIsPromotion] = useState(false);
+  const [haveHalfPrice, setHaveHalfPrice] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onSubmit = useCallback(async (values: MenuItemFormValues) => {
@@ -113,6 +118,7 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
       formData.append('name', values.name);
       formData.append('description', values.description);
       formData.append('price', values.price.toString());
+      formData.append('halfPrice', values.halfPrice.toString());
       formData.append('image', values.image);
       formData.append('categoryId', values.categoryId);
 
@@ -176,6 +182,14 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
     setIsPromotion(prev => !prev);
   }, []);
 
+  const verifyHalfPrice = useCallback((category: string) => {
+    if (category === 'Porções') {
+      setHaveHalfPrice(true);
+    } else {
+      setHaveHalfPrice(false);
+    }
+  }, []);
+
   return (
     <Card>
       <CardHeader>
@@ -193,6 +207,36 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input className="bg-white" placeholder="Digite o nome do item" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categoria</FormLabel>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        verifyHalfPrice(categories.find(category => category.id === value)?.name ?? '');
+                      }}
+                    >
+                      <SelectTrigger className='bg-white'>
+                        <SelectValue placeholder="Selecione uma categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -324,33 +368,35 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                 )}
               />
             ) : null}
-            <FormField
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoria</FormLabel>
-                  <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => field.onChange(value)}
-                    >
-                      <SelectTrigger className='bg-white'>
-                        <SelectValue placeholder="Selecione uma categoria" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {haveHalfPrice ? (
+              <FormField
+                control={form.control}
+                name="halfPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço da meia porção</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-white"
+                        type="text"
+                        placeholder="R$ 0,00"
+                        {...field}
+                        onChange={(e) => {
+                          const formattedValue = formatCurrencyInput(e.target.value);
+                          const numericValue = parseFloat(
+                            formattedValue.replace(/[^0-9.]/g, "")
+                          );
+                          field.onChange(numericValue);
+                        }}
+                        value={formatCurrencyInput((field.value ?? 0).toString())}
+                        required
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Criando..." : "Criar Item"}
             </Button>

@@ -32,10 +32,12 @@ export default async function CategoryPage({ params }: { params: { id: string } 
               name: item.name,
               description: item.description,
               price: item.price,
+              halfPrice: item.halfPrice || 0,
               image: item.image,
               category: category.id,
               promotion: item.promotion || false
             }}
+            categoryName={category.name}
           />
         ))}
       </div>

@@ -13,6 +13,7 @@ interface MenuItemCardProps {
     name: string
     description: string
     price: number
+    halfPrice: number
     image: string
     category: string
     promotion?: {
@@ -20,10 +21,68 @@ interface MenuItemCardProps {
       inPromotion: boolean
     }
   }
+  categoryName: string
 }
 
-export function MenuItemCard({ item }: MenuItemCardProps) {
+export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
   const { addItem } = useCart()
+
+  if (categoryName === "Porções") {
+    return (
+      <Card className="overflow-hidden">
+        <div className="relative h-48">
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            className="object-cover"
+          />
+        </div>
+        <CardHeader>
+          <CardTitle className="flex justify-between">
+            <span className='flex items-start'>{item.name}</span>
+            <div className="flex flex-col justify-end items-end">
+              {item.promotion?.inPromotion ? (
+                <>
+                  <span className="text-sm line-through text-muted-foreground">{formatCurrency(item.price)}</span>
+                  <span className="text-primary font-bold">{formatCurrency(item.promotion.price)}</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-primary">
+                    <span className='text-base items-start'>Inteira: </span>
+                    {formatCurrency(item.price)}
+                  </span>
+                  <span className="text-primary">
+                    <span className='text-base items-start'>Meia: </span>
+                    {formatCurrency(item.halfPrice)}
+                  </span>
+                </>
+              )}
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{item.description}</p>
+        </CardContent>
+        <CardFooter>
+          <Button
+            className="w-full"
+            onClick={() =>
+              addItem({
+                ...item,
+                price: item.promotion?.inPromotion ? item.promotion.price : item.price,
+              })
+            }
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar ao Carrinho
+          </Button>
+        </CardFooter>
+      </Card>
+    )
+  }
+
 
   return (
     <Card className="overflow-hidden">
