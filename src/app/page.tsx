@@ -2,39 +2,6 @@ import { getCategories } from '@/api/categories'
 import { CategoryCard } from "@/components/category-card"
 import { connectToMongoDB } from '@/lib/db'
 
-// const categories = [
-//   {
-//     id: "1",
-//     name: "Porções",
-//     image: "/categories/porcoes.jpg",
-//   },
-//   {
-//     id: "2",
-//     name: "Bebidas",
-//     image: "/categories/bebidas.jpg",
-//   },
-//   {
-//     id: "3",
-//     name: "Drinks",
-//     image: "/categories/drinks.jpg",
-//   },
-//   {
-//     id: "4",
-//     name: "Doses",
-//     image: "/categories/doses.jpg",
-//   },
-//   {
-//     id: "5",
-//     name: "Combos",
-//     image: "/categories/combos.jpg",
-//   },
-//   {
-//     id: "6",
-//     name: "Promoções",
-//     image: "/categories/promocoes.jpg",
-//   },
-// ]
-
 export default async function Home() {
   await connectToMongoDB()
   const { categories } = await getCategories();
