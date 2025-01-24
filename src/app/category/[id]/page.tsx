@@ -3,8 +3,9 @@ import { getMenuItems } from '@/api/menuItems'
 import { MenuItemCard } from "@/components/menu-item-card"
 import { connectToMongoDB } from "@/lib/db"
 import { notFound } from 'next/navigation'
+import { PageProps } from '../../../../.next/types/app/page'
 
-export default async function CategoryPage({ params }: { params: { id: string } }) {
+export default async function CategoryPage({ params }: PageProps) {
   await connectToMongoDB()
 
   const { id: categoryId } = await params;
