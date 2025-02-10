@@ -1,4 +1,4 @@
-import { WhiteLabelConfig } from "@/types/menu"
+import { WhiteLabelConfig } from "@/types/menu";
 
 export const whiteLabelConfig: WhiteLabelConfig = {
   restaurantName: "Bar e Bocha",
@@ -6,4 +6,4 @@ export const whiteLabelConfig: WhiteLabelConfig = {
   primaryColor: "hsl(var(--primary))",
   secondaryColor: "hsl(var(--secondary))",
   fontFamily: "Inter, sans-serif",
-}
+};

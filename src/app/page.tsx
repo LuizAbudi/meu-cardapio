@@ -1,9 +1,9 @@
-import { getCategories } from '@/api/categories'
-import { CategoryCard } from "@/components/category-card"
-import { connectToMongoDB } from '@/lib/db'
+import { getCategories } from "@/api/categories";
+import { CategoryCard } from "@/components/category-card";
+import { connectToMongoDB } from "@/lib/db";
 
 export default async function Home() {
-  await connectToMongoDB()
+  await connectToMongoDB();
   const { categories } = await getCategories();
 
   return (
@@ -16,11 +16,11 @@ export default async function Home() {
             category={{
               id: category.id,
               name: category.name,
-              image: category.image
+              image: category.image,
             }}
           />
         ))}
       </div>
     </>
-  )
+  );
 }

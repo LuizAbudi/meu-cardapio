@@ -16,7 +16,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const mongoUri = `mongodb+srv://${credentials.username}:${credentials.password}@${process.env.MONGODB_CLUSTER_URI}`;
-        
+
         try {
           const connection = await mongoose.connect(mongoUri);
 
@@ -43,14 +43,14 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {    
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
       }
       return token;
     },
-    async session({ session, token }) {    
+    async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.username = token.username as string;

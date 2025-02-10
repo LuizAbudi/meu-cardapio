@@ -1,31 +1,38 @@
-'use client'
+"use client";
 
-import { formatCurrency } from "@/utils/format"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useCart } from "@/contexts/cart-context"
-import Image from "next/image"
-import { Plus } from 'lucide-react'
+import Image from "next/image";
+import { Plus } from "lucide-react";
+
+import { formatCurrency } from "@/utils/format";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useCart } from "@/contexts/cart-context";
 
 interface MenuItemCardProps {
   item: {
-    id: string
-    name: string
-    description: string
-    price: number
-    halfPrice: number
-    image: string
-    category: string
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    halfPrice: number;
+    image: string;
+    category: string;
     promotion?: {
-      price: number
-      inPromotion: boolean
-    }
-  }
-  categoryName: string
+      price: number;
+      inPromotion: boolean;
+    };
+  };
+  categoryName: string;
 }
 
 export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
-  const { addItem } = useCart()
+  const { addItem } = useCart();
 
   if (categoryName === "Porções") {
     return (
@@ -40,21 +47,25 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
         </div>
         <CardHeader>
           <CardTitle className="flex justify-between">
-            <span className='flex items-start'>{item.name}</span>
+            <span className="flex items-start">{item.name}</span>
             <div className="flex flex-col justify-end items-end">
               {item.promotion?.inPromotion ? (
                 <>
-                  <span className="text-sm line-through text-muted-foreground">{formatCurrency(item.price)}</span>
-                  <span className="text-primary font-bold">{formatCurrency(item.promotion.price)}</span>
+                  <span className="text-sm line-through text-muted-foreground">
+                    {formatCurrency(item.price)}
+                  </span>
+                  <span className="text-primary font-bold">
+                    {formatCurrency(item.promotion.price)}
+                  </span>
                 </>
               ) : (
                 <>
                   <span className="text-primary">
-                    <span className='text-base items-start'>Inteira: </span>
+                    <span className="text-base items-start">Inteira: </span>
                     {formatCurrency(item.price)}
                   </span>
                   <span className="text-primary">
-                    <span className='text-base items-start'>Meia: </span>
+                    <span className="text-base items-start">Meia: </span>
                     {formatCurrency(item.halfPrice)}
                   </span>
                 </>
@@ -71,7 +82,9 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
             onClick={() =>
               addItem({
                 ...item,
-                price: item.promotion?.inPromotion ? item.promotion.price : item.price,
+                price: item.promotion?.inPromotion
+                  ? item.promotion.price
+                  : item.price,
               })
             }
           >
@@ -80,19 +93,13 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
           </Button>
         </CardFooter>
       </Card>
-    )
+    );
   }
-
 
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48">
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          className="object-cover"
-        />
+        <Image src={item.image} alt={item.name} fill className="object-cover" />
       </div>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
@@ -100,8 +107,12 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
           <div className="flex flex-col items-end">
             {item.promotion?.inPromotion ? (
               <>
-                <span className="text-sm line-through text-muted-foreground">{formatCurrency(item.price)}</span>
-                <span className="text-primary font-bold">{formatCurrency(item.promotion.price)}</span>
+                <span className="text-sm line-through text-muted-foreground">
+                  {formatCurrency(item.price)}
+                </span>
+                <span className="text-primary font-bold">
+                  {formatCurrency(item.promotion.price)}
+                </span>
               </>
             ) : (
               <span className="text-primary">{formatCurrency(item.price)}</span>
@@ -118,7 +129,9 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
           onClick={() =>
             addItem({
               ...item,
-              price: item.promotion?.inPromotion ? item.promotion.price : item.price,
+              price: item.promotion?.inPromotion
+                ? item.promotion.price
+                : item.price,
             })
           }
         >
@@ -127,6 +140,5 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
-

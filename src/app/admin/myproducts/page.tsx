@@ -1,15 +1,17 @@
-import { getCategories } from "@/api/categories"
-import { getAllMenuItens } from "@/api/menuItems"
-import { MenuItem } from "@/types/menu"
-import FilteredProducts from '../components/filtered-products'
-import FilteredCategories from '../components/fitered-categories'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import Link from "next/link";
+
+import { getCategories } from "@/api/categories";
+import { getAllMenuItens } from "@/api/menuItems";
+import { MenuItem } from "@/types/menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+
+import FilteredProducts from "../components/filtered-products";
+import FilteredCategories from "../components/fitered-categories";
 
 export default async function MyProducts() {
-  const { categories } = await getCategories()
-  const { items } = await getAllMenuItens()
+  const { categories } = await getCategories();
+  const { items } = await getAllMenuItens();
 
   const newItems: MenuItem[] = items.map((item) => ({
     id: item.id,
@@ -21,11 +23,11 @@ export default async function MyProducts() {
     category: item.category.name,
     promotion: item.promotion
       ? {
-        price: item.promotion.price,
-        inPromotion: item.promotion.inPromotion,
-      }
+          price: item.promotion.price,
+          inPromotion: item.promotion.inPromotion,
+        }
       : undefined,
-  }))
+  }));
 
   return (
     <>
@@ -41,18 +43,24 @@ export default async function MyProducts() {
                 <TabsTrigger value="categories">Categorias</TabsTrigger>
               </TabsList>
               <TabsContent value="categories">
-                <h1 className="text-3xl font-bold tracking-tight mb-4">Meus Produtos</h1>
+                <h1 className="text-3xl font-bold tracking-tight mb-4">
+                  Meus Produtos
+                </h1>
                 <FilteredCategories initialCategories={categories} />
               </TabsContent>
               <TabsContent value="products">
-                <h1 className="text-3xl font-bold tracking-tight mb-4">Meus Produtos</h1>
-                <FilteredProducts initialItems={newItems} categories={categories} />
+                <h1 className="text-3xl font-bold tracking-tight mb-4">
+                  Meus Produtos
+                </h1>
+                <FilteredProducts
+                  initialItems={newItems}
+                  categories={categories}
+                />
               </TabsContent>
             </Tabs>
           </div>
         </div>
       </div>
     </>
-
-  )
+  );
 }

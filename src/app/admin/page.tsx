@@ -1,9 +1,11 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CategoryForm } from "./components/category-form"
-import { MenuItemForm } from "./components/menu-item-form"
-import { getCategories } from '@/api/categories'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import Link from "next/link";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getCategories } from "@/api/categories";
+import { Button } from "@/components/ui/button";
+
+import { CategoryForm } from "./components/category-form";
+import { MenuItemForm } from "./components/menu-item-form";
 
 export default async function AdminPage() {
   const { categories } = await getCategories();
@@ -33,6 +35,5 @@ export default async function AdminPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-

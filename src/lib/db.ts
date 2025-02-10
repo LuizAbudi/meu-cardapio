@@ -24,13 +24,13 @@ export async function connectToMongoDB(): Promise<Connection> {
   }
 
   const cached = globalForMongoose.mongooseConnection!;
-  
+
   if (cached.conn) {
     return cached.conn;
   }
 
   if (!cached.promise) {
-    console.log('Attempting MongoDB connection');
+    console.log("Attempting MongoDB connection");
     cached.promise = mongoose
       .connect(process.env.MONGODB_URI)
       .then((mongoose) => mongoose.connection);

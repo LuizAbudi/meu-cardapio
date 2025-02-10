@@ -1,48 +1,51 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Search, Trash2 } from "lucide-react"
-import Image from "next/image"
-import { useToast } from "@/hooks/use-toast"
-import { deleteCategory } from "../actions"
-import { Category } from '@/types/menu'
+import { useState } from "react";
+import { Search, Trash2 } from "lucide-react";
+import Image from "next/image";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Category } from "@/types/menu";
+
+import { deleteCategory } from "../actions";
 
 interface FilteredCategoriesProps {
-  initialCategories: Category[]
+  initialCategories: Category[];
 }
 
-export default function FilteredCategories({ initialCategories }: FilteredCategoriesProps) {
-  const [categories, setCategories] = useState(initialCategories)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isLoading, setIsLoading] = useState<string | null>(null)
-  const { toast } = useToast()
-
+export default function FilteredCategories({
+  initialCategories,
+}: FilteredCategoriesProps) {
+  const [categories, setCategories] = useState(initialCategories);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const { toast } = useToast();
 
   async function handleDelete(id: string) {
-    setIsLoading(id)
+    setIsLoading(id);
     try {
-      const result = await deleteCategory(id)
+      const result = await deleteCategory(id);
       if (result.success) {
         toast({
           title: "Categoria deletada",
           description: "A categoria foi deletada com sucesso.",
-        })
-        setCategories((prev) => prev.filter((category) => category.id !== id))
+        });
+        setCategories((prev) => prev.filter((category) => category.id !== id));
       } else {
-        throw new Error(result.error)
+        throw new Error(result.error);
       }
     } catch (error) {
       toast({
         title: "Erro",
         description: "Erro ao deletar categoria.",
         variant: "destructive",
-      })
-      console.error(error)
+      });
+      console.error(error);
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
   }
 
@@ -73,8 +76,8 @@ export default function FilteredCategories({ initialCategories }: FilteredCatego
   // }
 
   const filteredCategories = categories.filter((category) =>
-    category.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+    category.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -126,12 +129,14 @@ export default function FilteredCategories({ initialCategories }: FilteredCatego
 
         {filteredCategories.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">Nenhuma categoria encontrada</p>
+            <p className="text-muted-foreground">
+              Nenhuma categoria encontrada
+            </p>
           </div>
         )}
 
         {/* Criar modal para editar categoria */}
       </div>
     </div>
-  )
+  );
 }

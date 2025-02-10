@@ -1,5 +1,5 @@
-import { connectToMongoDB } from '@/lib/db';
-import { Category } from '@/models/Category';
+import { connectToMongoDB } from "@/lib/db";
+import { Category } from "@/models/Category";
 
 export async function getCategories() {
   await connectToMongoDB();
@@ -13,7 +13,7 @@ export async function getCategories() {
       createdAt: cat.createdAt.toISOString(),
       image: cat.image,
     })),
-  }  
+  };
 }
 
 export async function getCategory(id: string) {

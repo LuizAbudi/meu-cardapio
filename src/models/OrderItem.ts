@@ -1,10 +1,10 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 interface OrderItem extends Document {
   itemName: string;
   quantity: number;
   price: number;
-  halfPrice: number
+  halfPrice: number;
 }
 
 const orderItemSchema = new Schema<OrderItem>({
@@ -13,6 +13,8 @@ const orderItemSchema = new Schema<OrderItem>({
   price: { type: Number, required: true },
 });
 
-const OrderItem = mongoose.models.OrderItem || mongoose.model<OrderItem>('OrderItem', orderItemSchema);
+const OrderItem =
+  mongoose.models.OrderItem ||
+  mongoose.model<OrderItem>("OrderItem", orderItemSchema);
 
 export default OrderItem;

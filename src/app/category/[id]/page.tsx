@@ -1,12 +1,14 @@
-import { getCategory } from '@/api/categories'
-import { getMenuItems } from '@/api/menuItems'
-import { MenuItemCard } from "@/components/menu-item-card"
-import { connectToMongoDB } from "@/lib/db"
-import { notFound } from 'next/navigation'
-import { PageProps } from '../../../../.next/types/app/page'
+import { notFound } from "next/navigation";
+
+import { getCategory } from "@/api/categories";
+import { getMenuItems } from "@/api/menuItems";
+import { MenuItemCard } from "@/components/menu-item-card";
+import { connectToMongoDB } from "@/lib/db";
+
+import { PageProps } from "../../../../.next/types/app/page";
 
 export default async function CategoryPage({ params }: PageProps) {
-  await connectToMongoDB()
+  await connectToMongoDB();
 
   const { id: categoryId } = await params;
 
@@ -36,13 +38,12 @@ export default async function CategoryPage({ params }: PageProps) {
               halfPrice: item.halfPrice || 0,
               image: item.image,
               category: category.id,
-              promotion: item.promotion || false
+              promotion: item.promotion || false,
             }}
             categoryName={category.name}
           />
         ))}
       </div>
     </>
-  )
+  );
 }
-

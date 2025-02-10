@@ -1,27 +1,27 @@
 export interface MenuItem {
-  id: string
-  name: string
-  description: string
-  price: number
-  halfPrice: number
-  image: string
-  category: string
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  halfPrice: number;
+  image: string;
+  category: string;
   promotion?: {
-    price: number
-    inPromotion: boolean
-  }
+    price: number;
+    inPromotion: boolean;
+  };
 }
 
 export interface Category {
-  id: string
-  name: string
-  image: string
+  id: string;
+  name: string;
+  image: string;
 }
 
 export interface WhiteLabelConfig {
-  restaurantName: string
-  logo: string
-  primaryColor: string
-  secondaryColor: string
-  fontFamily: string
+  restaurantName: string;
+  logo: string;
+  primaryColor: string;
+  secondaryColor: string;
+  fontFamily: string;
 }

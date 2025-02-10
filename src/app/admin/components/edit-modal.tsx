@@ -1,27 +1,46 @@
-"use client"
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { Category, MenuItem } from "@/types/menu"
-import { formatCurrencyInput } from '@/utils/format'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Switch } from '@/components/ui/switch'
-import { MdOutlineFileUpload } from 'react-icons/md'
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { MdOutlineFileUpload } from "react-icons/md";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Category, MenuItem } from "@/types/menu";
+import { formatCurrencyInput } from "@/utils/format";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
 
 interface EditModalProps {
-  item: MenuItem | null
-  categories: Category[]
-  isOpen: boolean
-  onClose: () => void
-  onSave: (id: string, formData: FormData) => Promise<void>
+  item: MenuItem | null;
+  categories: Category[];
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (id: string, formData: FormData) => Promise<void>;
 }
 
 const menuItemSchema = z
@@ -32,13 +51,18 @@ const menuItemSchema = z
       .number({ invalid_type_error: "O preço deve ser um número" })
       .positive("O preço deve ser maior que zero"),
     halfPrice: z
-      .number({ invalid_type_error: "O preço da meia porção deve ser um número" })
+      .number({
+        invalid_type_error: "O preço da meia porção deve ser um número",
+      })
       .positive("O preço da meia porção deve ser maior que zero")
       .optional(),
     image: z.string().url("Insira uma URL válida para a imagem"),
     categoryId: z.string().min(1, "Selecione uma categoria"),
     promotion: z.object({
-      price: z.number().min(0, "O preço da promoção deve ser maior que zero").optional(),
+      price: z
+        .number()
+        .min(0, "O preço da promoção deve ser maior que zero")
+        .optional(),
       inPromotion: z.boolean(),
     }),
   })
@@ -58,20 +82,27 @@ const menuItemSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["promotion", "price"],
-          message: "O preço da promoção não pode ser maior que o preço original.",
+          message:
+            "O preço da promoção não pode ser maior que o preço original.",
         });
       }
     }
   });
 
-type MenuItemFormValues = z.infer<typeof menuItemSchema>
+type MenuItemFormValues = z.infer<typeof menuItemSchema>;
 
-export function EditModal({ item, categories, isOpen, onClose, onSave }: EditModalProps) {
-  const [isImageUrl, setIsImageUrl] = useState(false)
-  const [isPromotion, setIsPromotion] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [halfPrice, setHalfPrice] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function EditModal({
+  item,
+  categories,
+  isOpen,
+  onClose,
+  onSave,
+}: EditModalProps) {
+  const [isImageUrl, setIsImageUrl] = useState(false);
+  const [isPromotion, setIsPromotion] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [halfPrice, setHalfPrice] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<MenuItemFormValues>({
     resolver: zodResolver(menuItemSchema),
@@ -85,82 +116,88 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
         price: item?.promotion?.price || 0,
         inPromotion: item?.promotion?.inPromotion || false,
       },
-      categoryId: categories.find(cat => cat.name === item?.category)?.id || "",
+      categoryId:
+        categories.find((cat) => cat.name === item?.category)?.id || "",
     },
-  })
+  });
 
   const handleCheckedChange = useCallback(() => {
-    setIsImageUrl(prev => !prev)
-  }, [])
+    setIsImageUrl((prev) => !prev);
+  }, []);
 
   const handleFileChange = useCallback(() => {
     if (fileInputRef.current) {
-      fileInputRef.current.click()
+      fileInputRef.current.click();
     }
-  }, [])
+  }, []);
 
   const handleFileSelection = useCallback(() => {
     if (fileInputRef.current) {
-      const file = fileInputRef.current.files?.[0]
+      const file = fileInputRef.current.files?.[0];
       if (file) {
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onload = (e) => {
-          if (typeof e.target?.result === 'string') {
-            form.setValue('image', e.target.result)
+          if (typeof e.target?.result === "string") {
+            form.setValue("image", e.target.result);
           }
-        }
-        reader.readAsDataURL(file)
+        };
+        reader.readAsDataURL(file);
       }
     }
-  }, [form])
+  }, [form]);
 
   const handleCheckedPromotion = useCallback(() => {
-    setIsPromotion(prev => !prev)
-  }, [])
+    setIsPromotion((prev) => !prev);
+  }, []);
 
   const onSubmit = async (data: MenuItemFormValues) => {
-    if (!item) return
+    if (!item) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const formData = new FormData()
-      formData.append('name', data.name)
-      formData.append('description', data.description)
-      formData.append('price', data.price.toString())
-      formData.append('halfPrice', data.halfPrice?.toString() || '')
-      formData.append('image', data.image)
-      formData.append('categoryId', data.categoryId)
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("price", data.price.toString());
+      formData.append("halfPrice", data.halfPrice?.toString() || "");
+      formData.append("image", data.image);
+      formData.append("categoryId", data.categoryId);
 
       if (data.promotion.inPromotion && data.promotion.price) {
-        formData.append('promotion.price', data.promotion.price.toString())
-        formData.append('promotion.inPromotion', data.promotion.inPromotion.toString())
+        formData.append("promotion.price", data.promotion.price.toString());
+        formData.append(
+          "promotion.inPromotion",
+          data.promotion.inPromotion.toString(),
+        );
       }
 
-      await onSave(item.id, formData)
-      onClose()
+      await onSave(item.id, formData);
+      onClose();
     } catch (error) {
-      console.error(error)
+      console.error(error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const verifyHalfPrice = useCallback((categoryName: string) => {
     if (categoryName === "Porções") {
-      setHalfPrice(true)
+      setHalfPrice(true);
     } else {
-      setHalfPrice(false)
+      setHalfPrice(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    const categoryName = categories.find(cat => cat.id === form.getValues('categoryId'))?.name
+    const categoryName = categories.find(
+      (cat) => cat.id === form.getValues("categoryId"),
+    )?.name;
     if (categoryName) {
-      verifyHalfPrice(categoryName)
+      verifyHalfPrice(categoryName);
     }
-  }, [form, categories, verifyHalfPrice])
+  }, [form, categories, verifyHalfPrice]);
 
-  if (!item) return null
+  if (!item) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -190,10 +227,7 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea
-                      className="bg-white text-black"
-                      {...field}
-                    />
+                    <Textarea className="bg-white text-black" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -211,11 +245,13 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                       type="text"
                       {...field}
                       onChange={(e) => {
-                        const formattedValue = formatCurrencyInput(e.target.value)
+                        const formattedValue = formatCurrencyInput(
+                          e.target.value,
+                        );
                         const numericValue = parseFloat(
-                          formattedValue.replace(/[^0-9.]/g, "")
-                        )
-                        field.onChange(numericValue)
+                          formattedValue.replace(/[^0-9.]/g, ""),
+                        );
+                        field.onChange(numericValue);
                       }}
                       value={formatCurrencyInput((field.value ?? 0).toString())}
                     />
@@ -225,7 +261,11 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
               )}
             />
             <div className="flex items-center space-x-2">
-              <Switch id="image-url" checked={isImageUrl} onCheckedChange={handleCheckedChange} />
+              <Switch
+                id="image-url"
+                checked={isImageUrl}
+                onCheckedChange={handleCheckedChange}
+              />
               <Label>Imagem via arquivo</Label>
             </div>
             {isImageUrl ? (
@@ -237,7 +277,11 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                     <FormLabel>Imagem</FormLabel>
                     <FormControl>
                       <div>
-                        <Button variant="secondary" type="button" onClick={handleFileChange}>
+                        <Button
+                          variant="secondary"
+                          type="button"
+                          onClick={handleFileChange}
+                        >
                           <MdOutlineFileUpload className="h-10 w-10" />
                           <span>Upload</span>
                         </Button>
@@ -249,7 +293,9 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                           onChange={handleFileSelection}
                         />
                         <Label className="ml-2">
-                          {form.getValues('image') ? 'Imagem selecionada' : 'Nenhuma imagem selecionada'}
+                          {form.getValues("image")
+                            ? "Imagem selecionada"
+                            : "Nenhuma imagem selecionada"}
                         </Label>
                       </div>
                     </FormControl>
@@ -274,13 +320,13 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
             )}
             <div>
               <Label>Esse produto está em promoção?</Label>
-              <div className='mt-2'>
+              <div className="mt-2">
                 <Switch
                   id="isPromotion"
                   checked={isPromotion}
                   onCheckedChange={(checked) => {
-                    handleCheckedPromotion()
-                    form.setValue('promotion.inPromotion', checked)
+                    handleCheckedPromotion();
+                    form.setValue("promotion.inPromotion", checked);
                   }}
                 />
               </div>
@@ -298,13 +344,17 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                         type="text"
                         {...field}
                         onChange={(e) => {
-                          const formattedValue = formatCurrencyInput(e.target.value)
+                          const formattedValue = formatCurrencyInput(
+                            e.target.value,
+                          );
                           const numericValue = parseFloat(
-                            formattedValue.replace(/[^0-9.]/g, "")
-                          )
-                          field.onChange(numericValue)
+                            formattedValue.replace(/[^0-9.]/g, ""),
+                          );
+                          field.onChange(numericValue);
                         }}
-                        value={formatCurrencyInput((field.value ?? 0).toString())}
+                        value={formatCurrencyInput(
+                          (field.value ?? 0).toString(),
+                        )}
                         required
                       />
                     </FormControl>
@@ -323,11 +373,14 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
-                        field.onChange(value)
-                        verifyHalfPrice(categories.find(cat => cat.id === value)?.name ?? '')
+                        field.onChange(value);
+                        verifyHalfPrice(
+                          categories.find((cat) => cat.id === value)?.name ??
+                            "",
+                        );
                       }}
                     >
-                      <SelectTrigger className='bg-white text-black'>
+                      <SelectTrigger className="bg-white text-black">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -356,13 +409,17 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
                         type="text"
                         {...field}
                         onChange={(e) => {
-                          const formattedValue = formatCurrencyInput(e.target.value)
+                          const formattedValue = formatCurrencyInput(
+                            e.target.value,
+                          );
                           const numericValue = parseFloat(
-                            formattedValue.replace(/[^0-9.]/g, "")
-                          )
-                          field.onChange(numericValue)
+                            formattedValue.replace(/[^0-9.]/g, ""),
+                          );
+                          field.onChange(numericValue);
                         }}
-                        value={formatCurrencyInput((field.value ?? 0).toString())}
+                        value={formatCurrencyInput(
+                          (field.value ?? 0).toString(),
+                        )}
                       />
                     </FormControl>
                     <FormMessage />
@@ -377,5 +434,5 @@ export function EditModal({ item, categories, isOpen, onClose, onSave }: EditMod
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

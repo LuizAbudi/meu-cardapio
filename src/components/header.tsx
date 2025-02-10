@@ -1,7 +1,8 @@
-import { whiteLabelConfig } from "@/config/white-label"
-import { Cart } from "@/components/cart"
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
+
+import { whiteLabelConfig } from "@/config/white-label";
+import { Cart } from "@/components/cart";
 
 export function Header() {
   return (
@@ -15,12 +16,14 @@ export function Header() {
             height={80}
             className="rounded-full m-2"
           />
-          <span className="text-xl font-bold">{whiteLabelConfig.restaurantName}</span>
+          <span className="text-xl font-bold">
+            {whiteLabelConfig.restaurantName}
+          </span>
         </Link>
         <div className="flex mr-4">
           <Cart />
         </div>
       </div>
     </header>
-  )
+  );
 }

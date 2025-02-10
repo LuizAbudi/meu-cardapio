@@ -2,7 +2,7 @@ export function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(value)
+  }).format(value);
 }
 
 // Converte o valor digitado pelo usuário (string com máscara) para número decimal

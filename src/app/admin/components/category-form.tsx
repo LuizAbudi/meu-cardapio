@@ -1,72 +1,84 @@
-'use client'
+"use client";
 
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { createCategory } from "../actions"
-import { Button } from "@/components/ui/button"
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useCallback, useRef, useState } from "react";
+import { MdOutlineFileUpload } from "react-icons/md";
+
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
-import { useToast } from "@/hooks/use-toast"
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { useCallback, useRef, useState } from 'react'
-import { MdOutlineFileUpload } from "react-icons/md";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+
+import { createCategory } from "../actions";
 
 const categorySchema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
   image: z.string().url("Insira uma URL válida para a imagem"),
-})
+});
 
-type CategoryFormValues = z.infer<typeof categorySchema>
+type CategoryFormValues = z.infer<typeof categorySchema>;
 
 export function CategoryForm() {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
       image: "",
     },
-  })
+  });
   const [isImageUrl, setIsImageUrl] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onSubmit = useCallback(async (values: CategoryFormValues) => {
-    try {
-      const formData = new FormData();
-      formData.append("name", values.name);
-      formData.append("image", values.image);
+  const onSubmit = useCallback(
+    async (values: CategoryFormValues) => {
+      try {
+        const formData = new FormData();
+        formData.append("name", values.name);
+        formData.append("image", values.image);
 
-      const result = await createCategory(formData);
-      if (result.success) {
+        const result = await createCategory(formData);
+        if (result.success) {
+          toast({
+            title: "Categoria criada",
+            description: "A categoria foi criada com sucesso",
+          });
+          form.reset();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
         toast({
-          title: "Categoria criada",
-          description: "A categoria foi criada com sucesso",
+          title: "Erro",
+          description: "Erro ao criar categoria",
+          variant: "destructive",
         });
-        form.reset();
-      } else {
-        throw new Error(result.error);
+        console.error(error);
       }
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao criar categoria",
-        variant: "destructive",
-      });
-      console.error(error);
-    }
-  }, [form, toast]);
+    },
+    [form, toast],
+  );
 
   const handleCheckedChange = useCallback(() => {
-    setIsImageUrl(prev => !prev);
+    setIsImageUrl((prev) => !prev);
   }, []);
 
   const handleFileChange = useCallback(() => {
@@ -81,10 +93,10 @@ export function CategoryForm() {
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          if (typeof e.target?.result === 'string') {
-            form.setValue('image', e.target.result);
+          if (typeof e.target?.result === "string") {
+            form.setValue("image", e.target.result);
           }
-        }
+        };
         reader.readAsDataURL(file);
       }
     }
@@ -106,14 +118,22 @@ export function CategoryForm() {
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input className="bg-white" placeholder="Digite o nome da categoria" {...field} />
+                    <Input
+                      className="bg-white"
+                      placeholder="Digite o nome da categoria"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex items-center space-x-2">
-              <Switch id="image-url" checked={isImageUrl} onCheckedChange={handleCheckedChange} />
+              <Switch
+                id="image-url"
+                checked={isImageUrl}
+                onCheckedChange={handleCheckedChange}
+              />
               <Label>Imagem via arquivo</Label>
             </div>
             {isImageUrl ? (
@@ -125,7 +145,11 @@ export function CategoryForm() {
                     <FormLabel>Imagem</FormLabel>
                     <FormControl>
                       <div>
-                        <Button variant="secondary" type="button" onClick={handleFileChange}>
+                        <Button
+                          variant="secondary"
+                          type="button"
+                          onClick={handleFileChange}
+                        >
                           <MdOutlineFileUpload className="h-10 w-10" />
                           <span>Upload</span>
                         </Button>
@@ -150,7 +174,11 @@ export function CategoryForm() {
                   <FormItem>
                     <FormLabel>URL da Imagem</FormLabel>
                     <FormControl>
-                      <Input className="bg-white" placeholder="https://exemplo.com/imagem.jpg" {...field} />
+                      <Input
+                        className="bg-white"
+                        placeholder="https://exemplo.com/imagem.jpg"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -1,5 +1,5 @@
-import { connectToMongoDB } from '@/lib/db';
-import { MenuItem } from '@/models/MenuItem';
+import { connectToMongoDB } from "@/lib/db";
+import { MenuItem } from "@/models/MenuItem";
 
 export async function getMenuItems(categoryId: string) {
   await connectToMongoDB();
@@ -18,23 +18,26 @@ export async function getMenuItems(categoryId: string) {
       promotion: {
         price: item.promotion?.price / 100,
         inPromotion: item.promotion?.inPromotion,
-      }
+      },
     })),
-  }
+  };
 }
 
 export async function getAllMenuItens() {
-  const items = await MenuItem.find().populate('category').sort({ name: 1 }).lean()
+  const items = await MenuItem.find()
+    .populate("category")
+    .sort({ name: 1 })
+    .lean();
 
   return {
-     items: items.map((item) => ({
+    items: items.map((item) => ({
       _id: String(item._id),
       id: String(item._id),
       image: item.image,
       name: item.name,
       description: item.description,
       price: item.price / 100,
-      halfPrice: item.halfPrice / 100 ,
+      halfPrice: item.halfPrice / 100,
       createdAt: item.createdAt.toISOString(),
       category: {
         name: item.category.name,
@@ -48,4 +51,3 @@ export async function getAllMenuItens() {
     })),
   };
 }
-  

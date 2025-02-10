@@ -1,12 +1,12 @@
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
 
 interface CategoryCardProps {
   category: {
-    id: string
-    name: string
-    image?: string
-  }
+    id: string;
+    name: string;
+    image?: string;
+  };
 }
 
 export function CategoryCard({ category }: CategoryCardProps) {
@@ -26,5 +26,5 @@ export function CategoryCard({ category }: CategoryCardProps) {
         </div>
       </div>
     </Link>
-  )
+  );
 }

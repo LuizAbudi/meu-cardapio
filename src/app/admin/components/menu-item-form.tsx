@@ -1,48 +1,50 @@
-'use client'
+"use client";
 
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { createMenuItem } from "../actions"
-import { Button } from "@/components/ui/button"
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useCallback, useRef, useState } from "react";
+import { MdOutlineFileUpload } from "react-icons/md";
+
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useCallback, useRef, useState } from "react"
-import { useToast } from "@/hooks/use-toast"
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { MdOutlineFileUpload } from 'react-icons/md'
-import { formatCurrencyInput } from '@/utils/format'
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { formatCurrencyInput } from "@/utils/format";
+
+import { createMenuItem } from "../actions";
 
 interface Category {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface MenuItemFormProps {
-  categories: Category[]
+  categories: Category[];
 }
 
 const menuItemSchema = z
@@ -58,7 +60,10 @@ const menuItemSchema = z
     image: z.string().url("Insira uma URL válida para a imagem"),
     categoryId: z.string().min(1, "Selecione uma categoria"),
     promotion: z.object({
-      price: z.number().min(0, "O preço da promoção deve ser maior que zero").optional(),
+      price: z
+        .number()
+        .min(0, "O preço da promoção deve ser maior que zero")
+        .optional(),
       inPromotion: z.boolean(),
     }),
   })
@@ -78,18 +83,17 @@ const menuItemSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["promotion", "price"],
-          message: "O preço da promoção não pode ser maior que o preço original.",
+          message:
+            "O preço da promoção não pode ser maior que o preço original.",
         });
       }
     }
   });
 
-
-
-type MenuItemFormValues = z.infer<typeof menuItemSchema>
+type MenuItemFormValues = z.infer<typeof menuItemSchema>;
 
 export function MenuItemForm({ categories }: MenuItemFormProps) {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const form = useForm<MenuItemFormValues>({
     resolver: zodResolver(menuItemSchema),
     defaultValues: {
@@ -104,57 +108,63 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
       },
       categoryId: "",
     },
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isImageUrl, setIsImageUrl] = useState(false);
   const [isPromotion, setIsPromotion] = useState(false);
   const [haveHalfPrice, setHaveHalfPrice] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onSubmit = useCallback(async (values: MenuItemFormValues) => {
-    setIsSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append('name', values.name);
-      formData.append('description', values.description);
-      formData.append('price', values.price.toString());
-      formData.append('halfPrice', values.halfPrice.toString());
-      formData.append('image', values.image);
-      formData.append('categoryId', values.categoryId);
+  const onSubmit = useCallback(
+    async (values: MenuItemFormValues) => {
+      setIsSubmitting(true);
+      try {
+        const formData = new FormData();
+        formData.append("name", values.name);
+        formData.append("description", values.description);
+        formData.append("price", values.price.toString());
+        formData.append("halfPrice", values.halfPrice.toString());
+        formData.append("image", values.image);
+        formData.append("categoryId", values.categoryId);
 
-      if (isPromotion) {
-        if (values.promotion.price !== undefined) {
-          formData.append('promotion[price]', values.promotion.price.toString());
+        if (isPromotion) {
+          if (values.promotion.price !== undefined) {
+            formData.append(
+              "promotion[price]",
+              values.promotion.price.toString(),
+            );
+          }
+          formData.append("promotion[inPromotion]", "true");
+        } else {
+          formData.append("promotion[inPromotion]", "false");
         }
-        formData.append('promotion[inPromotion]', 'true');
-      } else {
-        formData.append('promotion[inPromotion]', 'false');
-      }
 
-      const result = await createMenuItem(formData);
-      if (result.success) {
+        const result = await createMenuItem(formData);
+        if (result.success) {
+          toast({
+            title: "Item criado",
+            description: "O item foi criado com sucesso",
+          });
+          form.reset();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
         toast({
-          title: "Item criado",
-          description: "O item foi criado com sucesso",
+          title: "Erro",
+          description: "Erro ao criar item",
+          variant: "destructive",
         });
-        form.reset();
-      } else {
-        throw new Error(result.error);
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao criar item",
-        variant: "destructive",
-      });
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [form, toast, isPromotion]);
+    },
+    [form, toast, isPromotion],
+  );
 
   const handleCheckedChange = useCallback(() => {
-    setIsImageUrl(prev => !prev);
+    setIsImageUrl((prev) => !prev);
   }, []);
 
   const handleFileChange = useCallback(() => {
@@ -169,21 +179,21 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          if (typeof e.target?.result === 'string') {
-            form.setValue('image', e.target.result);
+          if (typeof e.target?.result === "string") {
+            form.setValue("image", e.target.result);
           }
-        }
+        };
         reader.readAsDataURL(file);
       }
     }
   }, [form]);
 
   const handleCheckedPromotion = useCallback(() => {
-    setIsPromotion(prev => !prev);
+    setIsPromotion((prev) => !prev);
   }, []);
 
   const verifyHalfPrice = useCallback((category: string) => {
-    if (category === 'Porções') {
+    if (category === "Porções") {
       setHaveHalfPrice(true);
     } else {
       setHaveHalfPrice(false);
@@ -206,7 +216,11 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input className="bg-white" placeholder="Digite o nome do item" {...field} />
+                    <Input
+                      className="bg-white"
+                      placeholder="Digite o nome do item"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -222,11 +236,14 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
-                        field.onChange(value)
-                        verifyHalfPrice(categories.find(category => category.id === value)?.name ?? '');
+                        field.onChange(value);
+                        verifyHalfPrice(
+                          categories.find((category) => category.id === value)
+                            ?.name ?? "",
+                        );
                       }}
                     >
-                      <SelectTrigger className='bg-white'>
+                      <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Selecione uma categoria" />
                       </SelectTrigger>
                       <SelectContent>
@@ -272,9 +289,11 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                       placeholder="R$ 0,00"
                       {...field}
                       onChange={(e) => {
-                        const formattedValue = formatCurrencyInput(e.target.value);
+                        const formattedValue = formatCurrencyInput(
+                          e.target.value,
+                        );
                         const numericValue = parseFloat(
-                          formattedValue.replace(/[^0-9.]/g, "")
+                          formattedValue.replace(/[^0-9.]/g, ""),
                         );
                         field.onChange(numericValue);
                       }}
@@ -286,7 +305,11 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
               )}
             />
             <div className="flex items-center space-x-2">
-              <Switch id="image-url" checked={isImageUrl} onCheckedChange={handleCheckedChange} />
+              <Switch
+                id="image-url"
+                checked={isImageUrl}
+                onCheckedChange={handleCheckedChange}
+              />
               <Label>Imagem via arquivo</Label>
             </div>
             {isImageUrl ? (
@@ -298,7 +321,11 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                     <FormLabel>Imagem</FormLabel>
                     <FormControl>
                       <div>
-                        <Button variant="secondary" type="button" onClick={handleFileChange}>
+                        <Button
+                          variant="secondary"
+                          type="button"
+                          onClick={handleFileChange}
+                        >
                           <MdOutlineFileUpload className="h-10 w-10" />
                           <span>Upload</span>
                         </Button>
@@ -310,7 +337,9 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                           onChange={handleFileSelection}
                         />
                         <Label className="ml-2">
-                          {form.getValues('image') ? 'Imagem selecionada' : 'Nenhuma imagem selecionada'}
+                          {form.getValues("image")
+                            ? "Imagem selecionada"
+                            : "Nenhuma imagem selecionada"}
                         </Label>
                       </div>
                     </FormControl>
@@ -326,7 +355,11 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                   <FormItem>
                     <FormLabel>URL da Imagem</FormLabel>
                     <FormControl>
-                      <Input className="bg-white" placeholder="https://exemplo.com/imagem.jpg" {...field} />
+                      <Input
+                        className="bg-white"
+                        placeholder="https://exemplo.com/imagem.jpg"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -335,8 +368,12 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
             )}
             <div>
               <Label>Esse produto está em promoção?</Label>
-              <div className='mt-2'>
-                <Switch id="isPromotion" checked={isPromotion} onCheckedChange={handleCheckedPromotion} />
+              <div className="mt-2">
+                <Switch
+                  id="isPromotion"
+                  checked={isPromotion}
+                  onCheckedChange={handleCheckedPromotion}
+                />
               </div>
             </div>
             {isPromotion ? (
@@ -353,13 +390,17 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                         placeholder="R$ 0,00"
                         {...field}
                         onChange={(e) => {
-                          const formattedValue = formatCurrencyInput(e.target.value);
+                          const formattedValue = formatCurrencyInput(
+                            e.target.value,
+                          );
                           const numericValue = parseFloat(
-                            formattedValue.replace(/[^0-9.]/g, "")
+                            formattedValue.replace(/[^0-9.]/g, ""),
                           );
                           field.onChange(numericValue);
                         }}
-                        value={formatCurrencyInput((field.value ?? 0).toString())}
+                        value={formatCurrencyInput(
+                          (field.value ?? 0).toString(),
+                        )}
                         required
                       />
                     </FormControl>
@@ -382,13 +423,17 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                         placeholder="R$ 0,00"
                         {...field}
                         onChange={(e) => {
-                          const formattedValue = formatCurrencyInput(e.target.value);
+                          const formattedValue = formatCurrencyInput(
+                            e.target.value,
+                          );
                           const numericValue = parseFloat(
-                            formattedValue.replace(/[^0-9.]/g, "")
+                            formattedValue.replace(/[^0-9.]/g, ""),
                           );
                           field.onChange(numericValue);
                         }}
-                        value={formatCurrencyInput((field.value ?? 0).toString())}
+                        value={formatCurrencyInput(
+                          (field.value ?? 0).toString(),
+                        )}
                         required
                       />
                     </FormControl>
@@ -404,5 +449,5 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

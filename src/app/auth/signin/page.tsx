@@ -1,61 +1,77 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from '@/hooks/use-toast'
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SignInPage() {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-  const router = useRouter()
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
       const result = await signIn("credentials", {
         username,
         password,
         redirect: false,
-      })
+      });
 
       if (result?.error) {
         toast({
           title: "Erro",
           description: result.error,
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
       if (result?.ok) {
-        router.push("/admin")
+        router.push("/admin");
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex items-center justify-center">
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>Login</CardTitle>
-          <CardDescription>Entre com suas credenciais para acessar o painel administrativo</CardDescription>
+          <CardDescription>
+            Entre com suas credenciais para acessar o painel administrativo
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Usuário</Label>
-              <Input className="bg-white" id="username" type="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+              <Input
+                className="bg-white"
+                id="username"
+                type="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
@@ -75,6 +91,5 @@ export default function SignInPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

@@ -1,25 +1,26 @@
-import { Header } from "@/components/header"
-import { CartProvider } from "@/contexts/cart-context"
-import { whiteLabelConfig } from "@/config/white-label"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import { connectToMongoDB } from "@/lib/db"
-import "./globals.css"
-import { AuthProvider } from '@/providers/auth-provider'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] })
+import { Header } from "@/components/header";
+import { CartProvider } from "@/contexts/cart-context";
+import { whiteLabelConfig } from "@/config/white-label";
+import { connectToMongoDB } from "@/lib/db";
+import "./globals.css";
+import { AuthProvider } from "@/providers/auth-provider";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: whiteLabelConfig.restaurantName,
   description: `Cardápio digital - ${whiteLabelConfig.restaurantName}`,
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  connectToMongoDB()
+  connectToMongoDB();
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
@@ -33,6 +34,5 @@ export default function RootLayout({
         </AuthProvider>
       </body>
     </html>
-  )
+  );
 }
-

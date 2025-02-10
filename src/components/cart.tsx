@@ -1,21 +1,22 @@
-'use client'
+"use client";
 
-import { useCart } from "@/contexts/cart-context"
-import { formatCurrency } from "@/utils/format"
-import { Button } from "@/components/ui/button"
+import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import Image from "next/image";
+
+import { useCart } from "@/contexts/cart-context";
+import { formatCurrency } from "@/utils/format";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react'
-import Image from "next/image"
+} from "@/components/ui/sheet";
 
 export function Cart() {
-  const { items, total, updateQuantity, removeItem } = useCart()
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+  const { items, total, updateQuantity, removeItem } = useCart();
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <Sheet>
@@ -63,7 +64,9 @@ export function Cart() {
                           variant="outline"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
                         >
                           <Minus className="h-4 w-4" />
                         </Button>
@@ -72,7 +75,9 @@ export function Cart() {
                           variant="outline"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
@@ -98,12 +103,10 @@ export function Cart() {
               <span>Total</span>
               <span>{formatCurrency(total)}</span>
             </div>
-            <Button className="mt-4 w-full">
-              Finalizar Pedido
-            </Button>
+            <Button className="mt-4 w-full">Finalizar Pedido</Button>
           </div>
         )}
       </SheetContent>
     </Sheet>
-  )
+  );
 }

@@ -4,18 +4,18 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**',
+        protocol: "https",
+        hostname: "**",
       },
       {
-        protocol: 'http',
-        hostname: '**',
+        protocol: "http",
+        hostname: "**",
       },
     ],
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: '3mb',
+      bodySizeLimit: "3mb",
     },
   },
 };
