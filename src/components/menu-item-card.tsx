@@ -37,13 +37,7 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
   const [selectedOption, setSelectedOption] = useState<"full" | "half">("full");
 
   const handleAddToCart = () => {
-    const price =
-      selectedOption === "half"
-        ? item.halfPrice
-        : item.promotion?.inPromotion
-          ? item.promotion.price
-          : item.price;
-    addItem({ ...item, price });
+    addItem(item, selectedOption);
   };
 
   if (categoryName === "Porções") {
@@ -59,8 +53,8 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
         </div>
         <CardHeader>
           <CardTitle className="flex justify-between">
-            <span className="flex items-start">{item.name}</span>
-            <div className="flex flex-col justify-end items-end">
+            <span>{item.name}</span>
+            <div className="flex flex-col items-end">
               {item.promotion?.inPromotion ? (
                 <>
                   <span className="text-sm line-through text-muted-foreground">
@@ -108,7 +102,6 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
                   Inteira
                 </label>
               </div>
-
               <div className="inline-flex items-center">
                 <label
                   className="relative flex items-center cursor-pointer"
@@ -169,17 +162,7 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
         <p className="text-sm text-muted-foreground">{item.description}</p>
       </CardContent>
       <CardFooter>
-        <Button
-          className="w-full"
-          onClick={() =>
-            addItem({
-              ...item,
-              price: item.promotion?.inPromotion
-                ? item.promotion.price
-                : item.price,
-            })
-          }
-        >
+        <Button className="w-full" onClick={handleAddToCart}>
           <Plus className="mr-2 h-4 w-4" />
           Adicionar ao Carrinho
         </Button>

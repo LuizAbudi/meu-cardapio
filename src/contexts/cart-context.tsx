@@ -6,11 +6,12 @@ import { MenuItem } from "@/types/menu";
 
 interface CartItem extends MenuItem {
   quantity: number;
+  selectedOption: "full" | "half";
 }
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: MenuItem) => void;
+  addItem: (item: MenuItem, selectedOption: "full" | "half") => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   total: number;
@@ -32,15 +33,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
-  const addItem = (item: MenuItem) => {
+  const addItem = (item: MenuItem, selectedOption: "full" | "half") => {
     setItems((current) => {
-      const existingItem = current.find((i) => i.id === item.id);
+      const existingItem = current.find(
+        (i) => i.id === item.id && i.selectedOption === selectedOption,
+      );
+
+      const uniqueId = `${item.id}-${selectedOption}`;
+
       if (existingItem) {
         return current.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+          i.id === item.id && i.selectedOption === selectedOption
+            ? { ...i, quantity: i.quantity + 1 }
+            : i,
         );
       }
-      return [...current, { ...item, quantity: 1 }];
+
+      return [
+        ...current,
+        { ...item, quantity: 1, selectedOption, id: uniqueId },
+      ];
     });
   };
 
@@ -60,10 +72,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
+  const total = items.reduce((sum, item) => {
+    const price =
+      item.selectedOption === "half"
+        ? item.halfPrice
+        : item.promotion?.inPromotion
+          ? item.promotion.price
+          : item.price;
+    return sum + price * item.quantity;
+  }, 0);
 
   return (
     <CartContext.Provider
