@@ -35,23 +35,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = (item: MenuItem, selectedOption: "full" | "half") => {
     setItems((current) => {
-      const existingItem = current.find(
-        (i) => i.id === item.id && i.selectedOption === selectedOption,
-      );
+      const allItems = current.map((item) => item.id);
 
-      const uniqueId = `${item.id}-${selectedOption}`;
-
-      if (existingItem) {
-        return current.map((i) =>
-          i.id === item.id && i.selectedOption === selectedOption
-            ? { ...i, quantity: i.quantity + 1 }
-            : i,
+      if (allItems.includes(item.id)) {
+        return current.map((cartItem) =>
+          cartItem.id === item.id
+            ? {
+              ...cartItem,
+              quantity: cartItem.quantity + 1,
+            }
+            : cartItem,
         );
       }
 
       return [
         ...current,
-        { ...item, quantity: 1, selectedOption, id: uniqueId },
+        {
+          ...item,
+          quantity: 1,
+          selectedOption,
+        },
       ];
     });
   };

@@ -1,7 +1,6 @@
 "use client";
 
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
-import Image from "next/image";
 
 import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/utils/format";
@@ -49,15 +48,10 @@ export function Cart() {
                       ? item.promotion.price
                       : item.price;
                 return (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md">
-                      <Image
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+                  <div
+                    key={`${item.id}-${item.selectedOption}`}
+                    className="flex gap-4"
+                  >
                     <div className="flex-1">
                       <p>{item.name}</p>
                       {item.selectedOption === "half" ? (
