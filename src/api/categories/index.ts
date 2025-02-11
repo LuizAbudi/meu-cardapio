@@ -2,13 +2,7 @@ import { connectToMongoDB } from "@/lib/db";
 import { Category } from "@/models/Category";
 
 export async function getCategories() {
-  const { id } = await connectToMongoDB();
-
-  if (!id) {
-    return {
-      categories: [],
-    };
-  }
+  await connectToMongoDB();
 
   const categories = await Category.find().sort({ name: 1 }).lean();
 
