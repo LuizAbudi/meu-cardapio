@@ -43,29 +43,30 @@ async function CategoryContent({ categoryId }: { categoryId: string }) {
   return (
     <>
       <h1 className="mb-6 text-3xl font-bold">{category.name}</h1>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {items.length === 0 ? (
-          <p className="flex justify-center h-full text-center text-xl font-semibold">
+      {items.length === 0 && (
+        <div className="flex justify-center h-full">
+          <p className="text-center text-xl font-semibold">
             Não há produtos disponíveis nesta categoria.
           </p>
-        ) : (
-          items.map((item) => (
-            <MenuItemCard
-              key={item.id}
-              item={{
-                id: item.id,
-                name: item.name,
-                description: item.description,
-                price: item.price,
-                halfPrice: item.halfPrice || 0,
-                image: item.image,
-                category: category.id,
-                promotion: item.promotion || false,
-              }}
-              categoryName={category.name}
-            />
-          ))
-        )}
+        </div>
+      )}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => (
+          <MenuItemCard
+            key={item.id}
+            item={{
+              id: item.id,
+              name: item.name,
+              description: item.description,
+              price: item.price,
+              halfPrice: item.halfPrice || 0,
+              image: item.image,
+              category: category.id,
+              promotion: item.promotion || false,
+            }}
+            categoryName={category.name}
+          />
+        ))}
       </div>
     </>
   );
