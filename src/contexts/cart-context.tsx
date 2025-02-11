@@ -41,9 +41,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return current.map((cartItem) =>
           cartItem.id === item.id
             ? {
-              ...cartItem,
-              quantity: cartItem.quantity + 1,
-            }
+                ...cartItem,
+                quantity: cartItem.quantity + 1,
+              }
             : cartItem,
         );
       }
