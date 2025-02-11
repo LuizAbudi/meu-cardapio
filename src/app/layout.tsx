@@ -7,6 +7,7 @@ import { whiteLabelConfig } from "@/config/white-label";
 import { connectToMongoDB } from "@/lib/db";
 import "./globals.css";
 import { AuthProvider } from "@/providers/auth-provider";
+import Footer from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,9 +27,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <CartProvider>
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen flex flex-col bg-background">
               <Header />
-              <main className="m-4">{children}</main>
+              <main className="flex-grow m-4">{children}</main>
+              <Footer />
             </div>
           </CartProvider>
         </AuthProvider>
