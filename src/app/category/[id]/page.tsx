@@ -7,7 +7,9 @@ import { MenuItemCard } from "@/components/menu-item-card";
 import { connectToMongoDB } from "@/lib/db";
 import Loading from "@/components/loading";
 
-import { PageProps } from "../../../../.next/types/app/category/[id]/page";
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
 async function fetchData(categoryId: string) {
   await connectToMongoDB();
@@ -16,7 +18,7 @@ async function fetchData(categoryId: string) {
   return { category, items };
 }
 
-export default async function CategoryPage({ params }: PageProps) {
+export default async function CategoryPage({ params }: Props) {
   const resolvedParams = await params;
   const categoryId = resolvedParams?.id;
 
