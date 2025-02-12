@@ -37,7 +37,7 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
   const [selectedOption, setSelectedOption] = useState<"full" | "half">("full");
 
   const handleAddToCart = () => {
-    addItem({ ...item, image: "" }, selectedOption);
+    addItem({ ...item, image: "" }, categoryName, selectedOption);
   };
 
   if (categoryName === "Porções") {
@@ -88,13 +88,13 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
               <div className="inline-flex items-center">
                 <label
                   className="relative flex items-center cursor-pointer"
-                  htmlFor={`${item.id}`}
+                  htmlFor={`${item.id}-full`}
                 >
                   <input
                     name={`${item.id}-full`}
                     type="radio"
                     className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-primary checked:border-primary transition-all"
-                    id={item.id}
+                    id={`${item.id}-full`}
                     checked={selectedOption === "full"}
                     onChange={() => setSelectedOption("full")}
                   />

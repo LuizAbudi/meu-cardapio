@@ -6,12 +6,18 @@ import { MenuItem } from "@/types/menu";
 
 interface CartItem extends MenuItem {
   quantity: number;
-  selectedOption: "full" | "half";
+  selectedOption?: "full" | "half";
+  uniqueId: string;
+  categoryName: string;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: MenuItem, selectedOption: "full" | "half") => void;
+  addItem: (
+    item: MenuItem,
+    categoryName: string,
+    selectedOption?: "full" | "half",
+  ) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   total: number;
@@ -33,17 +39,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
-  const addItem = (item: MenuItem, selectedOption: "full" | "half") => {
-    setItems((current) => {
-      const allItems = current.map((item) => item.id);
+  const addItem = (
+    item: MenuItem,
+    categoryName: string,
+    selectedOption?: "full" | "half",
+  ) => {
+    const uniqueId = `${item.id}-${selectedOption}`;
 
-      if (allItems.includes(item.id)) {
+    setItems((current) => {
+      const itemIndex = current.findIndex(
+        (cartItem) => cartItem.uniqueId === uniqueId,
+      );
+
+      if (itemIndex !== -1) {
         return current.map((cartItem) =>
-          cartItem.id === item.id
-            ? {
-                ...cartItem,
-                quantity: cartItem.quantity + 1,
-              }
+          cartItem.uniqueId === uniqueId
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem,
         );
       }
@@ -54,20 +65,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           ...item,
           quantity: 1,
           selectedOption,
+          uniqueId,
+          categoryName,
         },
       ];
     });
   };
 
   const removeItem = (itemId: string) => {
-    setItems((current) => current.filter((item) => item.id !== itemId));
+    setItems((current) => current.filter((item) => item.uniqueId !== itemId));
   };
 
   const updateQuantity = (itemId: string, quantity: number) => {
     setItems((current) =>
       current
         .map((item) =>
-          item.id === itemId
+          item.uniqueId === itemId
             ? { ...item, quantity: Math.max(0, quantity) }
             : item,
         )

@@ -56,7 +56,7 @@ const menuItemSchema = z
       .positive("O preço deve ser maior que zero"),
     halfPrice: z
       .number({ invalid_type_error: "O preço da meia deve ser um número" })
-      .positive("O preço da meia deve ser maior que zero"),
+      .optional(), // Agora é opcional por padrão
     image: z.string().url("Insira uma URL válida para a imagem"),
     categoryId: z.string().min(1, "Selecione uma categoria"),
     promotion: z.object({
@@ -68,7 +68,16 @@ const menuItemSchema = z
     }),
   })
   .superRefine((data, ctx) => {
-    const { price, promotion } = data;
+    const { price, promotion, halfPrice } = data;
+
+    if (data.categoryId === "Porções" && !halfPrice) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["halfPrice"],
+        message:
+          "O preço da meia porção é obrigatório para a categoria Porções",
+      });
+    }
 
     if (promotion.inPromotion) {
       if (promotion.price === undefined || promotion.price <= 0) {
@@ -123,7 +132,7 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
         formData.append("name", values.name);
         formData.append("description", values.description);
         formData.append("price", values.price.toString());
-        formData.append("halfPrice", values.halfPrice.toString());
+        formData.append("halfPrice", values.halfPrice?.toString() ?? "0");
         formData.append("image", values.image);
         formData.append("categoryId", values.categoryId);
 
@@ -401,7 +410,6 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                         value={formatCurrencyInput(
                           (field.value ?? 0).toString(),
                         )}
-                        required
                       />
                     </FormControl>
                     <FormMessage />
@@ -434,7 +442,6 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                         value={formatCurrencyInput(
                           (field.value ?? 0).toString(),
                         )}
-                        required
                       />
                     </FormControl>
                     <FormMessage />

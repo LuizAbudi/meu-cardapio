@@ -54,13 +54,19 @@ export function Cart() {
                   >
                     <div className="flex-1">
                       <p>{item.name}</p>
-                      {item.selectedOption === "half" ? (
-                        <p className="text-sm text-muted-foreground">
-                          Meia porção
-                        </p>
+                      {item.categoryName === "Porções" ? (
+                        item.selectedOption === "half" ? (
+                          <p className="text-sm text-muted-foreground">
+                            Meia porção
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            Porção inteira
+                          </p>
+                        )
                       ) : (
                         <p className="text-sm text-muted-foreground">
-                          Porção inteira
+                          {item.categoryName}
                         </p>
                       )}
                       {item.promotion?.inPromotion && (
@@ -72,7 +78,7 @@ export function Cart() {
                           variant="ghost"
                           size="icon"
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
+                            updateQuantity(item.uniqueId, item.quantity - 1)
                           }
                           disabled={item.quantity === 1}
                         >
@@ -83,7 +89,7 @@ export function Cart() {
                           variant="ghost"
                           size="icon"
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            updateQuantity(item.uniqueId, item.quantity + 1)
                           }
                         >
                           <Plus className="h-4 w-4" />
@@ -93,7 +99,7 @@ export function Cart() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.uniqueId)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
