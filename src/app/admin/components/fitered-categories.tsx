@@ -103,6 +103,7 @@ export default function FilteredCategories({
                     width={300}
                     height={200}
                     className="h-48 w-full object-cover"
+                    priority
                   />
                 ) : null}
               </div>

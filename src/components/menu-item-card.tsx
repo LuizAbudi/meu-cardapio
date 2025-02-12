@@ -48,7 +48,9 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
             src={item.image}
             alt={item.name}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
+            priority
           />
         </div>
         <CardHeader>
@@ -137,7 +139,13 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48">
-        <Image src={item.image} alt={item.name} fill className="object-cover" />
+        <Image
+          src={item.image}
+          alt={item.name}
+          fill
+          className="object-cover"
+          priority
+        />
       </div>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
