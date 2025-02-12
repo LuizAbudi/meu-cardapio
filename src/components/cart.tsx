@@ -29,12 +29,15 @@ export function Cart() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [hasAccount, setHasAccount] = useState(false);
+  const [accountNumber, setAccountNumber] = useState("");
+
+  const isPhoneValid = (phone: string) => {
+    const phonePattern = new RegExp(/^\(?[1-9]{2}\)? ?9[0-9]{4}-?[0-9]{4}$/);
+    return phonePattern.test(phone);
+  };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove todos os caracteres não numéricos
     let value = e.target.value.replace(/\D/g, "");
-
-    // Aplica a máscara no número de telefone
     if (value.length <= 2) {
       value = value.replace(/(\d{2})/, "($1");
     } else if (value.length <= 7) {
@@ -42,43 +45,48 @@ export function Cart() {
     } else {
       value = value.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
     }
-
-    // Atualiza o estado com o valor formatado
     setPhone(value);
   };
 
   const handleSendToWhatsApp = () => {
-    const orderDetails = items
-      .map(
-        (item) =>
-          `${item.name} - ${formatCurrency(item.price)} x ${item.quantity}`,
-      )
-      .join("\n");
+    const orderDetails = items.map((item) => {
+      const price =
+        item.selectedOption === "half" ? item.halfPrice : item.price;
+
+      let name = item.name.padEnd(10);
+
+      if (item.selectedOption === "half") {
+        name += "(Meia)".padStart(2);
+      } else if (item.selectedOption === "full") {
+        name += "(Inteira)".padStart(2);
+      }
+
+      const quantity = `x ${item.quantity}`.padStart(6);
+      const totalPrice = formatCurrency(price * item.quantity).padStart(10);
+
+      return `${name} ${quantity} ${totalPrice}\n`;
+    });
 
     const message = `
-  -------------
-  BAR E BOCHA
-  -------------
+-------------
+BAR E BOCHA
+-------------
 
-  *Pedido:*
-  ${orderDetails}
-
-  -------------
-
-  *Total:* ${formatCurrency(total)}
-
-  *Nome:* ${name}
-  *Telefone:* ${phone}
-
-  *Conta no Bar e Bocha:* ${hasAccount ? "Sim" : "Não"}
-
-  -------------
-
-  AGUARDE A CONFIRMAÇÃO DO PEDIDO
-  `;
+*Pedido:*
+${orderDetails.join("")}
+-------------
+*Total:* ${formatCurrency(total)}
+*Nome:* ${name}
+*Telefone:* ${phone}
+*Conta no Bar e Bocha:* ${hasAccount ? "Sim" : "Não"}
+${hasAccount ? `*Número da conta:* ${phone}` : ""}
+-------------
+*AGUARDE A CONFIRMAÇÃO DO PEDIDO*
+`;
 
     const whatsappUrl = `https://wa.me/55${process.env.NEXT_PUBLIC_MYPHONE}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
+    localStorage.removeItem("cart");
   };
 
   return (
@@ -106,11 +114,7 @@ export function Cart() {
             <div className="space-y-4">
               {items.map((item) => {
                 const price =
-                  item.selectedOption === "half"
-                    ? item.halfPrice
-                    : item.promotion?.inPromotion
-                      ? item.promotion.price
-                      : item.price;
+                  item.selectedOption === "half" ? item.halfPrice : item.price;
                 return (
                   <div
                     key={`${item.id}-${item.selectedOption}`}
@@ -212,7 +216,7 @@ export function Cart() {
                 <RadioGroupItem
                   value="sim"
                   id="sim"
-                  onChange={() => setHasAccount(true)}
+                  onClick={() => setHasAccount(true)}
                 />
                 <Label htmlFor="sim">Sim</Label>
               </div>
@@ -220,7 +224,7 @@ export function Cart() {
                 <RadioGroupItem
                   value="nao"
                   id="nao"
-                  onChange={() => setHasAccount(false)}
+                  onClick={() => setHasAccount(false)}
                 />
                 <Label htmlFor="nao">Não</Label>
               </div>
@@ -229,8 +233,8 @@ export function Cart() {
           {hasAccount && (
             <Input
               placeholder="Número da conta"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
             />
           )}
           <div className="flex flex-col justify-end space-y-4">
@@ -245,13 +249,13 @@ export function Cart() {
                 setShowNamePhoneDialog(false);
                 setShowOrderDetailsDialog(true);
               }}
+              disabled={name.trim() === "" || !isPhoneValid(phone)}
             >
               Ok
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-
       <Dialog
         open={showOrderDetailsDialog}
         onOpenChange={setShowOrderDetailsDialog}
@@ -260,14 +264,30 @@ export function Cart() {
           <DialogTitle className="text-lg font-semibold">
             Confirme seu pedido
           </DialogTitle>
-          <p>
-            {items
-              .map(
-                (item) =>
-                  `${item.name} - ${formatCurrency(item.price)} x ${item.quantity}`,
-              )
-              .join("\n")}
-          </p>
+          {items.map((item) => {
+            const price =
+              item.selectedOption === "half" ? item.halfPrice : item.price;
+
+            let name = item.name;
+
+            if (item.selectedOption === "half") {
+              name += " (Meia)";
+            } else if (item.selectedOption === "full") {
+              name += " (Inteira)";
+            }
+
+            return (
+              <div
+                key={`${item.id}-${item.selectedOption}`}
+                className="flex justify-between"
+              >
+                <p>
+                  {name} - x {item.quantity}
+                </p>
+                <p>{formatCurrency(price * item.quantity)}</p>
+              </div>
+            );
+          })}
           <div className="flex justify-between text-lg font-medium mt-4">
             <span>Total:</span>
             <span>{formatCurrency(total)}</span>
