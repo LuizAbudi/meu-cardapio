@@ -3,8 +3,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useCallback, useRef, useState } from "react";
-import { MdOutlineFileUpload } from "react-icons/md";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -56,7 +55,7 @@ const menuItemSchema = z
       .positive("O preço deve ser maior que zero"),
     halfPrice: z
       .number({ invalid_type_error: "O preço da meia deve ser um número" })
-      .optional(), // Agora é opcional por padrão
+      .optional(),
     image: z.string().url("Insira uma URL válida para a imagem"),
     categoryId: z.string().min(1, "Selecione uma categoria"),
     promotion: z.object({
@@ -119,10 +118,8 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
     },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isImageUrl, setIsImageUrl] = useState(false);
   const [isPromotion, setIsPromotion] = useState(false);
   const [haveHalfPrice, setHaveHalfPrice] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onSubmit = useCallback(
     async (values: MenuItemFormValues) => {
@@ -171,31 +168,6 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
     },
     [form, toast, isPromotion],
   );
-
-  const handleCheckedChange = useCallback(() => {
-    setIsImageUrl((prev) => !prev);
-  }, []);
-
-  const handleFileChange = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  }, []);
-
-  const handleFileSelection = useCallback(() => {
-    if (fileInputRef.current) {
-      const file = fileInputRef.current.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (typeof e.target?.result === "string") {
-            form.setValue("image", e.target.result);
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  }, [form]);
 
   const handleCheckedPromotion = useCallback(() => {
     setIsPromotion((prev) => !prev);
@@ -313,68 +285,23 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
                 </FormItem>
               )}
             />
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="image-url"
-                checked={isImageUrl}
-                onCheckedChange={handleCheckedChange}
-              />
-              <Label>Imagem via arquivo</Label>
-            </div>
-            {isImageUrl ? (
-              <FormField
-                control={form.control}
-                name="image"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Imagem</FormLabel>
-                    <FormControl>
-                      <div>
-                        <Button
-                          variant="secondary"
-                          type="button"
-                          onClick={handleFileChange}
-                        >
-                          <MdOutlineFileUpload className="h-10 w-10" />
-                          <span>Upload</span>
-                        </Button>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          ref={fileInputRef}
-                          onChange={handleFileSelection}
-                        />
-                        <Label className="ml-2">
-                          {form.getValues("image")
-                            ? "Imagem selecionada"
-                            : "Nenhuma imagem selecionada"}
-                        </Label>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : (
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL da Imagem</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="bg-white"
-                        placeholder="https://exemplo.com/imagem.jpg"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL da Imagem</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="bg-white"
+                      placeholder="https://exemplo.com/imagem.jpg"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div>
               <Label>Esse produto está em promoção?</Label>
               <div className="mt-2">

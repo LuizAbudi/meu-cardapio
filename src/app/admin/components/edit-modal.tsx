@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MdOutlineFileUpload } from "react-icons/md";
 
 import {
   Dialog,
@@ -98,11 +97,9 @@ export function EditModal({
   onClose,
   onSave,
 }: EditModalProps) {
-  const [isImageUrl, setIsImageUrl] = useState(false);
   const [isPromotion, setIsPromotion] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [halfPrice, setHalfPrice] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<MenuItemFormValues>({
     resolver: zodResolver(menuItemSchema),
@@ -120,31 +117,6 @@ export function EditModal({
         categories.find((cat) => cat.name === item?.category)?.id || "",
     },
   });
-
-  const handleCheckedChange = useCallback(() => {
-    setIsImageUrl((prev) => !prev);
-  }, []);
-
-  const handleFileChange = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  }, []);
-
-  const handleFileSelection = useCallback(() => {
-    if (fileInputRef.current) {
-      const file = fileInputRef.current.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (typeof e.target?.result === "string") {
-            form.setValue("image", e.target.result);
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  }, [form]);
 
   const handleCheckedPromotion = useCallback(() => {
     setIsPromotion((prev) => !prev);
@@ -260,64 +232,19 @@ export function EditModal({
                 </FormItem>
               )}
             />
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="image-url"
-                checked={isImageUrl}
-                onCheckedChange={handleCheckedChange}
-              />
-              <Label>Imagem via arquivo</Label>
-            </div>
-            {isImageUrl ? (
-              <FormField
-                control={form.control}
-                name="image"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Imagem</FormLabel>
-                    <FormControl>
-                      <div>
-                        <Button
-                          variant="secondary"
-                          type="button"
-                          onClick={handleFileChange}
-                        >
-                          <MdOutlineFileUpload className="h-10 w-10" />
-                          <span>Upload</span>
-                        </Button>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          ref={fileInputRef}
-                          onChange={handleFileSelection}
-                        />
-                        <Label className="ml-2">
-                          {form.getValues("image")
-                            ? "Imagem selecionada"
-                            : "Nenhuma imagem selecionada"}
-                        </Label>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : (
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL da Imagem</FormLabel>
-                    <FormControl>
-                      <Input className="bg-white text-black" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL da Imagem</FormLabel>
+                  <FormControl>
+                    <Input className="bg-white text-black" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div>
               <Label>Esse produto está em promoção?</Label>
               <div className="mt-2">

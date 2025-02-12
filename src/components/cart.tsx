@@ -85,8 +85,8 @@ ${hasAccount ? `*Número da conta:* ${phone}` : ""}
 `;
 
     const whatsappUrl = `https://wa.me/55${process.env.NEXT_PUBLIC_MYPHONE}?text=${encodeURIComponent(message)}`;
+    items.forEach((item) => removeItem(item.uniqueId));
     window.open(whatsappUrl, "_blank");
-    localStorage.removeItem("cart");
   };
 
   return (
