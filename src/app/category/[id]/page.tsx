@@ -4,15 +4,15 @@ import { Suspense } from "react";
 import { getCategory } from "@/api/categories";
 import { getMenuItems } from "@/api/menuItems";
 import { MenuItemCard } from "@/components/menu-item-card";
-import { connectToMongoDB } from "@/lib/db";
 import Loading from "@/components/loading";
+import { veryfyConnectionMongo } from "@/lib/db";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
 async function fetchData(categoryId: string) {
-  await connectToMongoDB();
+  await veryfyConnectionMongo();
   const category = await getCategory(categoryId);
   const { items } = await getMenuItems(categoryId);
   return { category, items };

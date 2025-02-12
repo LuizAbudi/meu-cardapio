@@ -1,8 +1,8 @@
-import { connectToMongoDB } from "@/lib/db";
+import { veryfyConnectionMongo } from "@/lib/db";
 import { Category } from "@/models/Category";
 
 export async function getCategories() {
-  await connectToMongoDB();
+  await veryfyConnectionMongo();
 
   const categories = await Category.find().sort({ name: 1 }).lean();
 
@@ -17,7 +17,7 @@ export async function getCategories() {
 }
 
 export async function getCategory(id: string) {
-  await connectToMongoDB();
+  await veryfyConnectionMongo();
 
   const category = await Category.findById(id).lean();
 

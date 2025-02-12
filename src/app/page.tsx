@@ -2,11 +2,11 @@ import { Suspense } from "react";
 
 import { getCategories } from "@/api/categories";
 import { CategoryCard } from "@/components/category-card";
-import { connectToMongoDB } from "@/lib/db";
 import Loading from "@/components/loading";
+import { veryfyConnectionMongo } from "@/lib/db";
 
 async function fetchCategories() {
-  await connectToMongoDB();
+  await veryfyConnectionMongo();
   const { categories } = await getCategories();
   return categories;
 }

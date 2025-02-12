@@ -1,8 +1,11 @@
+import zlib from "zlib";
+
 import { connectToMongoDB } from "@/lib/db";
 import { MenuItem } from "@/models/MenuItem";
+import { veryfyConnectionMongo } from "@/lib/db";
 
 export async function getMenuItems(categoryId: string) {
-  await connectToMongoDB();
+  await veryfyConnectionMongo();
 
   const items = await MenuItem.find({ category: categoryId }).lean();
 

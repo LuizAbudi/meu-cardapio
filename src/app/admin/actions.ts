@@ -2,13 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 
-import { connectToMongoDB } from "@/lib/db";
 import { Category } from "@/models/Category";
 import { MenuItem } from "@/models/MenuItem";
+import { veryfyConnectionMongo } from "@/lib/db";
 
 export async function createCategory(formData: FormData) {
   try {
-    await connectToMongoDB();
+    await veryfyConnectionMongo();
 
     const category = await Category.create({
       name: formData.get("name"),
@@ -35,7 +35,7 @@ export async function createCategory(formData: FormData) {
 
 export async function createMenuItem(formData: FormData) {
   try {
-    await connectToMongoDB();
+    await veryfyConnectionMongo();
 
     const inPromotion = formData.get("promotion[inPromotion]") === "true";
     const promotionPrice = formData.get("promotion[price]");
@@ -80,7 +80,7 @@ export async function createMenuItem(formData: FormData) {
 
 export async function deleteCategory(id: string) {
   try {
-    await connectToMongoDB();
+    await veryfyConnectionMongo();
 
     await Promise.all([
       Category.findByIdAndDelete(id),
@@ -98,7 +98,7 @@ export async function deleteCategory(id: string) {
 
 export async function deleteMenuItem(id: string) {
   try {
-    await connectToMongoDB();
+    await veryfyConnectionMongo();
     const item = await MenuItem.findByIdAndDelete(id);
 
     revalidatePath("/admin");
@@ -112,7 +112,7 @@ export async function deleteMenuItem(id: string) {
 
 export async function updateCategory(id: string, formData: FormData) {
   try {
-    await connectToMongoDB();
+    await veryfyConnectionMongo();
 
     const category = await Category.findByIdAndUpdate(
       id,
@@ -134,7 +134,7 @@ export async function updateCategory(id: string, formData: FormData) {
 
 export async function updateMenuItem(id: string, formData: FormData) {
   try {
-    await connectToMongoDB();
+    await veryfyConnectionMongo();
 
     const item = await MenuItem.findByIdAndUpdate(
       id,
