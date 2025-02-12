@@ -1,6 +1,3 @@
-import zlib from "zlib";
-
-import { connectToMongoDB } from "@/lib/db";
 import { MenuItem } from "@/models/MenuItem";
 import { veryfyConnectionMongo } from "@/lib/db";
 
