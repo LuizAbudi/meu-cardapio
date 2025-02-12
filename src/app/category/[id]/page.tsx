@@ -1,3 +1,5 @@
+import zlib from "zlib";
+
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -11,11 +13,45 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
+type MenuItemType = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  halfPrice: number;
+  image: string;
+  category: string;
+  promotion?: {
+    price: number | null;
+    inPromotion: boolean;
+  };
+};
+
 async function fetchData(categoryId: string) {
   await connectToMongoDB();
   const category = await getCategory(categoryId);
-  const { items } = await getMenuItems(categoryId);
-  return { category, items };
+
+  const { compressedData } = await getMenuItems(categoryId);
+
+  const responseSizeKB = Buffer.byteLength(compressedData, "base64") / 1024;
+  console.log(
+    `📦 Tamanho da resposta comprimida: ${responseSizeKB.toFixed(2)} KB`,
+  );
+
+  const jsonString = zlib
+    .gunzipSync(Buffer.from(compressedData, "base64"))
+    .toString();
+
+  const responseSizeUncompressedKB =
+    Buffer.byteLength(jsonString, "utf-8") / 1024;
+  console.log(
+    `📦 Tamanho da resposta descomprimida: ${responseSizeUncompressedKB.toFixed(2)} KB`,
+  );
+
+  return {
+    category,
+    items: JSON.parse(jsonString).items as MenuItemType[],
+  };
 }
 
 export default async function CategoryPage({ params }: Props) {
@@ -62,7 +98,12 @@ async function CategoryContent({ categoryId }: { categoryId: string }) {
               halfPrice: item.halfPrice || 0,
               image: item.image,
               category: category.id,
-              promotion: item.promotion || false,
+              promotion: item.promotion
+                ? {
+                    price: item.promotion.price ?? 0,
+                    inPromotion: item.promotion.inPromotion,
+                  }
+                : undefined,
             }}
             categoryName={category.name}
           />

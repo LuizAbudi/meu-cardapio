@@ -1,3 +1,5 @@
+import zlib from "zlib";
+
 import { connectToMongoDB } from "@/lib/db";
 import { MenuItem } from "@/models/MenuItem";
 
@@ -6,7 +8,7 @@ export async function getMenuItems(categoryId: string) {
 
   const items = await MenuItem.find({ category: categoryId }).lean();
 
-  return {
+  const response = {
     items: items.map((item) => ({
       id: String(item._id),
       name: item.name,
@@ -20,6 +22,14 @@ export async function getMenuItems(categoryId: string) {
         inPromotion: item.promotion?.inPromotion,
       },
     })),
+  };
+
+  const compressedData = zlib
+    .gzipSync(JSON.stringify(response))
+    .toString("base64");
+
+  return {
+    compressedData,
   };
 }
 
