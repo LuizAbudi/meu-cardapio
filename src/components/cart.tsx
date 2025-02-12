@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 
 import { useCart } from "@/contexts/cart-context";
@@ -12,10 +13,73 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Label } from "./ui/label";
 
 export function Cart() {
   const { items, total, updateQuantity, removeItem } = useCart();
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const [showNamePhoneDialog, setShowNamePhoneDialog] = useState(false);
+  const [showOrderDetailsDialog, setShowOrderDetailsDialog] = useState(false);
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [hasAccount, setHasAccount] = useState(false);
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove todos os caracteres não numéricos
+    let value = e.target.value.replace(/\D/g, "");
+
+    // Aplica a máscara no número de telefone
+    if (value.length <= 2) {
+      value = value.replace(/(\d{2})/, "($1");
+    } else if (value.length <= 7) {
+      value = value.replace(/(\d{2})(\d{5})/, "($1) $2");
+    } else {
+      value = value.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+    }
+
+    // Atualiza o estado com o valor formatado
+    setPhone(value);
+  };
+
+  const handleSendToWhatsApp = () => {
+    const orderDetails = items
+      .map(
+        (item) =>
+          `${item.name} - ${formatCurrency(item.price)} x ${item.quantity}`,
+      )
+      .join("\n");
+
+    const message = `
+  -------------
+  BAR E BOCHA
+  -------------
+
+  *Pedido:*
+  ${orderDetails}
+
+  -------------
+
+  *Total:* ${formatCurrency(total)}
+
+  *Nome:* ${name}
+  *Telefone:* ${phone}
+
+  *Conta no Bar e Bocha:* ${hasAccount ? "Sim" : "Não"}
+
+  -------------
+
+  AGUARDE A CONFIRMAÇÃO DO PEDIDO
+  `;
+
+    const whatsappUrl = `https://wa.me/55${process.env.NEXT_PUBLIC_MYPHONE}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+  };
 
   return (
     <Sheet>
@@ -115,10 +179,114 @@ export function Cart() {
               <span>Total</span>
               <span>{formatCurrency(total)}</span>
             </div>
-            <Button className="mt-4 w-full">Finalizar Pedido</Button>
+            <Button
+              className="mt-4 w-full"
+              onClick={() => setShowNamePhoneDialog(true)}
+            >
+              Finalizar Pedido
+            </Button>
           </div>
         )}
       </SheetContent>
+
+      <Dialog open={showNamePhoneDialog} onOpenChange={setShowNamePhoneDialog}>
+        <DialogContent className="h-3/4">
+          <DialogTitle className="text-lg font-semibold">
+            Insira seus dados
+          </DialogTitle>
+          <div className="flex flex-col items-center justify-around space-y-4">
+            <Input
+              placeholder="Nome"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <Input
+              placeholder="Número do Celular"
+              value={phone}
+              onChange={handlePhoneChange}
+              maxLength={15}
+            />
+            <p className="mt-4">Possui conta no Bar e bocha?</p>
+            <RadioGroup defaultValue="nao" className="flex gap-2">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value="sim"
+                  id="sim"
+                  onChange={() => setHasAccount(true)}
+                />
+                <Label htmlFor="sim">Sim</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value="nao"
+                  id="nao"
+                  onChange={() => setHasAccount(false)}
+                />
+                <Label htmlFor="nao">Não</Label>
+              </div>
+            </RadioGroup>
+          </div>
+          {hasAccount && (
+            <Input
+              placeholder="Número da conta"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          )}
+          <div className="flex flex-col justify-end space-y-4">
+            <Button
+              onClick={() => setShowNamePhoneDialog(false)}
+              variant="outline"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                setShowNamePhoneDialog(false);
+                setShowOrderDetailsDialog(true);
+              }}
+            >
+              Ok
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showOrderDetailsDialog}
+        onOpenChange={setShowOrderDetailsDialog}
+      >
+        <DialogContent className="sm:mx-4">
+          <DialogTitle className="text-lg font-semibold">
+            Confirme seu pedido
+          </DialogTitle>
+          <p>
+            {items
+              .map(
+                (item) =>
+                  `${item.name} - ${formatCurrency(item.price)} x ${item.quantity}`,
+              )
+              .join("\n")}
+          </p>
+          <div className="flex justify-between text-lg font-medium mt-4">
+            <span>Total:</span>
+            <span>{formatCurrency(total)}</span>
+          </div>
+          <div className="mt-4 flex justify-between">
+            <Button onClick={() => setShowOrderDetailsDialog(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                handleSendToWhatsApp();
+                setShowOrderDetailsDialog(false);
+              }}
+            >
+              Confirmar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 }
