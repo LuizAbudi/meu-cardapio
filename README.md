@@ -20,6 +20,10 @@ Meu Cardápio é uma aplicação web para gerenciar e exibir cardápios de resta
 - **Integração Direta com MongoDB**: Permite operações de banco de dados sem a necessidade de uma camada de API separada, simplificando a arquitetura da aplicação.
 - **Simplificação da Arquitetura**: Elimina a camada de backend tradicional, resultando em uma aplicação mais leve e eficiente.
 
+## Autenticação
+- **Autenticação com o MongoDB**: É utilizado as credenciais do MongoDB para autenticação.
+- **Painel de Administração**: Acessar a rota `/admin` para adicionar, editar e remover itens do cardápio.
+
 ## Pré-requisitos
 
 - Node.js versão 14 ou superior.
