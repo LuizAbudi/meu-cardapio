@@ -38,7 +38,7 @@ export async function createMenuItem(formData: FormData) {
     await veryfyConnectionMongo();
 
     const inPromotion = formData.get("promotion[inPromotion]") === "true";
-    const promotionPrice = formData.get("promotion[price]");
+    const promotionPrice = formData.get("promotion[promotionPrice]");
 
     const item = await MenuItem.create({
       name: formData.get("name"),
@@ -49,7 +49,7 @@ export async function createMenuItem(formData: FormData) {
       category: formData.get("categoryId"),
       promotion: {
         inPromotion,
-        price: inPromotion ? Number(promotionPrice) : undefined,
+        promotionPrice: inPromotion ? Number(promotionPrice) : undefined,
       },
     });
 
@@ -61,9 +61,9 @@ export async function createMenuItem(formData: FormData) {
       halfPrice: item.halfPrice / 100,
       image: item.image ? item.image.toString() : "/placeholder-image.jpg",
       category: formData.get("categoryId"),
-      promotion: item.promotion.inPromotion
+      promotion: item.promotion
         ? {
-            price: item.promotion.price / 100,
+            promotionPrice: item.promotion.promotionPrice / 100,
             inPromotion: true,
           }
         : undefined,
@@ -147,8 +147,8 @@ export async function updateMenuItem(id: string, formData: FormData) {
         category: formData.get("categoryId"),
         promotion: {
           inPromotion: formData.get("promotion[inPromotion]") === "true",
-          price: formData.get("promotion[price]")
-            ? Number(formData.get("promotion[price]"))
+          promotionPrice: formData.get("promotion[promotionPrice]")
+            ? Number(formData.get("promotion[promotionPrice]"))
             : undefined,
         },
       },
@@ -163,12 +163,10 @@ export async function updateMenuItem(id: string, formData: FormData) {
       halfPrice: item.halfPrice / 100,
       image: item.image ? item.image.toString() : "/placeholder-image.jpg",
       category: formData.get("categoryId"),
-      promotion: item.promotion.inPromotion
-        ? {
-            price: item.promotion.price / 100,
-            inPromotion: true,
-          }
-        : undefined,
+      promotion: {
+        promotionPrice: item.promotion.promotionPrice / 100,
+        inPromotion: item.promotion.inPromotion,
+      },
     };
 
     revalidatePath("/admin");

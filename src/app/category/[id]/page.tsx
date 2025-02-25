@@ -62,7 +62,10 @@ async function CategoryContent({ categoryId }: { categoryId: string }) {
               halfPrice: item.halfPrice || 0,
               image: item.image,
               category: category.id,
-              promotion: item.promotion || false,
+              promotion: {
+                promotionPrice: item.promotion?.promotionPrice,
+                inPromotion: item.promotion?.inPromotion,
+              },
             }}
             categoryName={category.name}
           />

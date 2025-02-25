@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { Search, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { toast, Toaster } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { Category } from "@/types/menu";
 
 import { deleteCategory } from "../actions";
@@ -22,33 +22,25 @@ export default function FilteredCategories({
   const [categories, setCategories] = useState(initialCategories);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState<string | null>(null);
-  const { toast } = useToast();
 
   async function handleDelete(id: string) {
     setIsLoading(id);
     try {
       const result = await deleteCategory(id);
       if (result.success) {
-        toast({
-          title: "Categoria deletada",
-          description: "A categoria foi deletada com sucesso.",
-        });
+        toast("A categoria foi deletada com sucesso.");
         setCategories((prev) => prev.filter((category) => category.id !== id));
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao deletar categoria.",
-        variant: "destructive",
-      });
+      toast("Erro ao deletar categoria.");
       console.error(error);
     } finally {
       setIsLoading(null);
     }
   }
-
+  // TODO: Implement handleUpdate function
   // async function handleUpdate(id: string, formData: FormData) {
   //   try {
   //     const result = await updateCategory(id, formData)
@@ -138,6 +130,7 @@ export default function FilteredCategories({
 
         {/* Criar modal para editar categoria */}
       </div>
+      <Toaster />
     </div>
   );
 }

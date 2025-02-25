@@ -7,7 +7,7 @@ export interface MenuItem {
   image: string;
   category: string;
   promotion?: {
-    price: number;
+    promotionPrice: number;
     inPromotion: boolean;
   };
 }

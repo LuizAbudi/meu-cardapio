@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Search, Trash2 } from "lucide-react";
+import { BadgePercent, Pencil, Search, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { toast, Toaster } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Category, MenuItem } from "@/types/menu";
-import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -34,26 +34,18 @@ export default function FilteredProducts({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const { toast } = useToast();
 
   async function handleDelete(id: string) {
     setIsLoading(id);
     try {
       const result = await deleteMenuItem(id);
       if (result.success) {
-        toast({
-          title: "Item deletado",
-          description: "O item foi deletado com sucesso",
-        });
+        toast("O item foi deletado com sucesso");
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao deletar item",
-        variant: "destructive",
-      });
+      toast("Erro ao deletar item");
       console.error(error);
     } finally {
       setIsLoading(null);
@@ -62,21 +54,15 @@ export default function FilteredProducts({
 
   async function handleUpdate(id: string, formData: FormData) {
     try {
+      console.log("formData", formData);
       const result = await updateMenuItem(id, formData);
       if (result.success) {
-        toast({
-          title: "Item atualizado",
-          description: "O item foi atualizado com sucesso",
-        });
+        toast("O item foi atualizado com sucesso");
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao atualizar item",
-        variant: "destructive",
-      });
+      toast("Erro ao atualizar item");
       console.error(error);
     }
   }
@@ -141,7 +127,12 @@ export default function FilteredProducts({
                   />
                 ) : null}
               </div>
-              <CardContent className="p-4">
+              <CardContent className="p-4 relative">
+                {item.promotion?.inPromotion && (
+                  <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full absolute top-2 right-2 z-10">
+                    <BadgePercent className="h-6 w-6" />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <h3 className="font-semibold">{item.name}</h3>
                   <p className="text-sm text-muted-foreground">
@@ -154,12 +145,14 @@ export default function FilteredProducts({
                         currency: "BRL",
                       }).format(item.price)}
                     </p>
-                    <p className="font-medium">
-                      {new Intl.NumberFormat("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      }).format(item.halfPrice)}
-                    </p>
+                    {item.category === "Porções" && (
+                      <p className="font-medium">
+                        {new Intl.NumberFormat("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        }).format(item.halfPrice)}
+                      </p>
+                    )}
                     <div className="flex space-x-2">
                       <Button
                         variant="ghost"
@@ -198,6 +191,7 @@ export default function FilteredProducts({
           onSave={handleUpdate}
         />
       </div>
+      <Toaster />
     </div>
   );
 }

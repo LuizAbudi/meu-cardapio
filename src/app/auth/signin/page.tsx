@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast, Toaster } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,13 +15,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 
 export default function SignInPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,11 +34,7 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        toast({
-          title: "Erro",
-          description: result.error,
-          variant: "destructive",
-        });
+        toast(result.error);
         return;
       }
 
@@ -89,6 +84,7 @@ export default function SignInPage() {
             </Button>
           </form>
         </CardContent>
+        <Toaster />
       </Card>
     </div>
   );

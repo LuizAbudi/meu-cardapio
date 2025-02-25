@@ -10,8 +10,13 @@ interface CategoryCardProps {
 }
 
 export function CategoryCard({ category }: CategoryCardProps) {
+  const categoryLink =
+    category.name === "Promoções"
+      ? "/category/promotions"
+      : `/category/${category.id}`;
+
   return (
-    <Link href={`/category/${category.id}`}>
+    <Link href={categoryLink}>
       <div className="group relative overflow-hidden rounded-lg">
         <Image
           src={category.image || "/placeholder-image.jpg"}

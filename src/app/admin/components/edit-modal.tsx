@@ -42,51 +42,31 @@ interface EditModalProps {
   onSave: (id: string, formData: FormData) => Promise<void>;
 }
 
-const menuItemSchema = z
-  .object({
-    name: z.string().min(1, "O nome é obrigatório"),
-    description: z.string().min(1, "A descrição é obrigatória"),
-    price: z
-      .number({ invalid_type_error: "O preço deve ser um número" })
-      .positive("O preço deve ser maior que zero"),
-    halfPrice: z
-      .number({
-        invalid_type_error: "O preço da meia porção deve ser um número",
-      })
-      .positive("O preço da meia porção deve ser maior que zero")
-      .optional(),
-    image: z.string().url("Insira uma URL válida para a imagem"),
-    categoryId: z.string().min(1, "Selecione uma categoria"),
-    promotion: z.object({
-      price: z
-        .number()
-        .min(0, "O preço da promoção deve ser maior que zero")
-        .optional(),
-      inPromotion: z.boolean(),
-    }),
-  })
-  .superRefine((data, ctx) => {
-    const { price, promotion } = data;
+interface HandleChangeProps {
+  e: React.ChangeEvent<HTMLInputElement>;
+  field: {
+    onChange: (value: number) => void;
+  };
+}
 
-    if (promotion.inPromotion) {
-      if (promotion.price === undefined || promotion.price <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["promotion", "price"],
-          message: "O preço da promoção deve ser maior que zero.",
-        });
-      }
-
-      if (promotion.price !== undefined && promotion.price > price) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["promotion", "price"],
-          message:
-            "O preço da promoção não pode ser maior que o preço original.",
-        });
-      }
-    }
-  });
+const menuItemSchema = z.object({
+  name: z.string().min(1, "O nome é obrigatório"),
+  description: z.string().min(1, "A descrição é obrigatória"),
+  price: z
+    .number({ invalid_type_error: "O preço deve ser um número" })
+    .positive("O preço deve ser maior que zero"),
+  halfPrice: z
+    .number({
+      invalid_type_error: "O preço da meia porção deve ser um número",
+    })
+    .optional(),
+  image: z.string().url("Insira uma URL válida para a imagem"),
+  categoryId: z.string().min(1, "Selecione uma categoria"),
+  promotion: z.object({
+    promotionPrice: z.number().optional(),
+    inPromotion: z.boolean(),
+  }),
+});
 
 type MenuItemFormValues = z.infer<typeof menuItemSchema>;
 
@@ -97,7 +77,9 @@ export function EditModal({
   onClose,
   onSave,
 }: EditModalProps) {
-  const [isPromotion, setIsPromotion] = useState(false);
+  const [isPromotion, setIsPromotion] = useState<boolean>(
+    item?.promotion?.inPromotion ?? false,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [halfPrice, setHalfPrice] = useState(false);
 
@@ -110,7 +92,7 @@ export function EditModal({
       halfPrice: (item?.halfPrice ?? 0) * 100,
       image: item?.image || "",
       promotion: {
-        price: item?.promotion?.price || 0,
+        promotionPrice: (item?.promotion?.promotionPrice ?? 0) * 100 || 0,
         inPromotion: item?.promotion?.inPromotion || false,
       },
       categoryId:
@@ -135,8 +117,11 @@ export function EditModal({
       formData.append("image", data.image);
       formData.append("categoryId", data.categoryId);
 
-      if (data.promotion.inPromotion && data.promotion.price) {
-        formData.append("promotion.price", data.promotion.price.toString());
+      if (data.promotion.inPromotion && data.promotion.promotionPrice) {
+        formData.append(
+          "promotion.promotionPrice",
+          data.promotion.promotionPrice.toString(),
+        );
         formData.append(
           "promotion.inPromotion",
           data.promotion.inPromotion.toString(),
@@ -170,6 +155,22 @@ export function EditModal({
   }, [form, categories, verifyHalfPrice]);
 
   if (!item) return null;
+
+  const handleChangePrice = ({ e, field }: HandleChangeProps) => {
+    const formattedValue = formatCurrencyInput(e.target.value);
+    const numericValue = parseFloat(formattedValue.replace(/[^0-9.]/g, ""));
+    field.onChange(numericValue);
+  };
+
+  const handleValueCategoryChange = (
+    value: string,
+    field: {
+      onChange: (value: string) => void;
+    },
+  ) => {
+    field.onChange(value);
+    verifyHalfPrice(categories.find((cat) => cat.id === value)?.name ?? "");
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -216,15 +217,7 @@ export function EditModal({
                       className="bg-white text-black"
                       type="text"
                       {...field}
-                      onChange={(e) => {
-                        const formattedValue = formatCurrencyInput(
-                          e.target.value,
-                        );
-                        const numericValue = parseFloat(
-                          formattedValue.replace(/[^0-9.]/g, ""),
-                        );
-                        field.onChange(numericValue);
-                      }}
+                      onChange={(e) => handleChangePrice({ e, field })}
                       value={formatCurrencyInput((field.value ?? 0).toString())}
                     />
                   </FormControl>
@@ -232,6 +225,29 @@ export function EditModal({
                 </FormItem>
               )}
             />
+            {item.category === "Porções" ? (
+              <FormField
+                control={form.control}
+                name="halfPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço da Meia</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-white text-black"
+                        type="text"
+                        {...field}
+                        onChange={(e) => handleChangePrice({ e, field })}
+                        value={formatCurrencyInput(
+                          (field.value ?? 0).toString(),
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
             <FormField
               control={form.control}
               name="image"
@@ -261,7 +277,7 @@ export function EditModal({
             {isPromotion ? (
               <FormField
                 control={form.control}
-                name="promotion.price"
+                name="promotion.promotionPrice"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Preço da promoção</FormLabel>
@@ -270,19 +286,10 @@ export function EditModal({
                         className="bg-white text-black"
                         type="text"
                         {...field}
-                        onChange={(e) => {
-                          const formattedValue = formatCurrencyInput(
-                            e.target.value,
-                          );
-                          const numericValue = parseFloat(
-                            formattedValue.replace(/[^0-9.]/g, ""),
-                          );
-                          field.onChange(numericValue);
-                        }}
+                        onChange={(e) => handleChangePrice({ e, field })}
                         value={formatCurrencyInput(
                           (field.value ?? 0).toString(),
                         )}
-                        required
                       />
                     </FormControl>
                     <FormMessage />
@@ -299,13 +306,9 @@ export function EditModal({
                   <FormControl>
                     <Select
                       value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        verifyHalfPrice(
-                          categories.find((cat) => cat.id === value)?.name ??
-                            "",
-                        );
-                      }}
+                      onValueChange={(value) =>
+                        handleValueCategoryChange(value, field)
+                      }
                     >
                       <SelectTrigger className="bg-white text-black">
                         <SelectValue />

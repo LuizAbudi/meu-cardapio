@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { BadgePercent, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { formatCurrency } from "@/utils/format";
@@ -25,7 +25,7 @@ interface MenuItemCardProps {
     image: string;
     category: string;
     promotion?: {
-      price: number;
+      promotionPrice: number;
       inPromotion: boolean;
     };
   };
@@ -63,7 +63,7 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
                     {formatCurrency(item.price)}
                   </span>
                   <span className="text-primary font-bold">
-                    {formatCurrency(item.promotion.price)}
+                    {formatCurrency(item.promotion.promotionPrice)}
                   </span>
                 </>
               ) : (
@@ -137,7 +137,12 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden relative">
+      {item.promotion?.inPromotion && (
+        <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 absolute top-0 left-3 z-10 pb-3 rounded-b-full">
+          <BadgePercent className="mt-3 h-6 w-6" />
+        </div>
+      )}
       <div className="relative h-48">
         <Image
           src={item.image}
@@ -157,7 +162,7 @@ export function MenuItemCard({ item, categoryName }: MenuItemCardProps) {
                   {formatCurrency(item.price)}
                 </span>
                 <span className="text-primary font-bold">
-                  {formatCurrency(item.promotion.price)}
+                  {formatCurrency(item.promotion.promotionPrice)}
                 </span>
               </>
             ) : (

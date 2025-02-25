@@ -23,7 +23,7 @@ export default async function MyProducts() {
     category: item.category.name,
     promotion: item.promotion
       ? {
-          price: item.promotion.price,
+          promotionPrice: item.promotion.promotionPrice,
           inPromotion: item.promotion.inPromotion,
         }
       : undefined,
@@ -44,7 +44,7 @@ export default async function MyProducts() {
               </TabsList>
               <TabsContent value="categories">
                 <h1 className="text-3xl font-bold tracking-tight mb-4">
-                  Meus Produtos
+                  Minhas Categorias
                 </h1>
                 <FilteredCategories initialCategories={categories} />
               </TabsContent>

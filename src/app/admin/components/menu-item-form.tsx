@@ -4,6 +4,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useCallback, useState } from "react";
+import { Loader } from "lucide-react";
+import { toast, Toaster } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { formatCurrencyInput } from "@/utils/format";
@@ -59,10 +60,7 @@ const menuItemSchema = z
     image: z.string().url("Insira uma URL válida para a imagem"),
     categoryId: z.string().min(1, "Selecione uma categoria"),
     promotion: z.object({
-      price: z
-        .number()
-        .min(0, "O preço da promoção deve ser maior que zero")
-        .optional(),
+      promotionPrice: z.number().optional(),
       inPromotion: z.boolean(),
     }),
   })
@@ -79,15 +77,21 @@ const menuItemSchema = z
     }
 
     if (promotion.inPromotion) {
-      if (promotion.price === undefined || promotion.price <= 0) {
+      if (
+        promotion.promotionPrice === undefined ||
+        promotion.promotionPrice <= 0
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ["promotion", "price"],
+          path: ["promotion", "promotionPrice"],
           message: "O preço da promoção deve ser maior que zero.",
         });
       }
 
-      if (promotion.price !== undefined && promotion.price > price) {
+      if (
+        promotion.promotionPrice !== undefined &&
+        promotion.promotionPrice > price
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["promotion", "price"],
@@ -101,7 +105,6 @@ const menuItemSchema = z
 type MenuItemFormValues = z.infer<typeof menuItemSchema>;
 
 export function MenuItemForm({ categories }: MenuItemFormProps) {
-  const { toast } = useToast();
   const form = useForm<MenuItemFormValues>({
     resolver: zodResolver(menuItemSchema),
     defaultValues: {
@@ -111,7 +114,7 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
       halfPrice: 0,
       image: "",
       promotion: {
-        price: 0,
+        promotionPrice: 0,
         inPromotion: false,
       },
       categoryId: "",
@@ -134,10 +137,10 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
         formData.append("categoryId", values.categoryId);
 
         if (isPromotion) {
-          if (values.promotion.price !== undefined) {
+          if (values.promotion.promotionPrice !== undefined) {
             formData.append(
-              "promotion[price]",
-              values.promotion.price.toString(),
+              "promotion[promotionPrice]",
+              values.promotion.promotionPrice.toString(),
             );
           }
           formData.append("promotion[inPromotion]", "true");
@@ -147,26 +150,19 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
 
         const result = await createMenuItem(formData);
         if (result.success) {
-          toast({
-            title: "Item criado",
-            description: "O item foi criado com sucesso",
-          });
+          toast("O item foi criado com sucesso");
           form.reset();
         } else {
           throw new Error(result.error);
         }
       } catch (error) {
-        toast({
-          title: "Erro",
-          description: "Erro ao criar item",
-          variant: "destructive",
-        });
+        toast("Ocorreu um erro ao criar o item");
         console.error(error);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [form, toast, isPromotion],
+    [form, isPromotion],
   );
 
   const handleCheckedPromotion = useCallback(() => {
@@ -188,6 +184,11 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
         <CardDescription>Adicione um novo item ao cardápio</CardDescription>
       </CardHeader>
       <CardContent>
+        {isSubmitting && (
+          <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center">
+            <Loader className="animate-spin" size={32} />
+          </div>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -315,7 +316,7 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
             {isPromotion ? (
               <FormField
                 control={form.control}
-                name="promotion.price"
+                name="promotion.promotionPrice"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Preço da promoção</FormLabel>
@@ -382,6 +383,7 @@ export function MenuItemForm({ categories }: MenuItemFormProps) {
           </form>
         </Form>
       </CardContent>
+      <Toaster />
     </Card>
   );
 }

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useCallback } from "react";
+import { toast, Toaster } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
 
 import { createCategory } from "../actions";
 
@@ -34,7 +34,6 @@ const categorySchema = z.object({
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
 export function CategoryForm() {
-  const { toast } = useToast();
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
@@ -52,24 +51,17 @@ export function CategoryForm() {
 
         const result = await createCategory(formData);
         if (result.success) {
-          toast({
-            title: "Categoria criada",
-            description: "A categoria foi criada com sucesso",
-          });
+          toast("A categoria foi criada com sucesso");
           form.reset();
         } else {
           throw new Error(result.error);
         }
       } catch (error) {
-        toast({
-          title: "Erro",
-          description: "Erro ao criar categoria",
-          variant: "destructive",
-        });
+        toast("Erro ao criar categoria");
         console.error(error);
       }
     },
-    [form, toast],
+    [form],
   );
 
   return (
@@ -121,6 +113,7 @@ export function CategoryForm() {
           </form>
         </Form>
       </CardContent>
+      <Toaster />
     </Card>
   );
 }
