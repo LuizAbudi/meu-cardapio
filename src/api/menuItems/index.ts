@@ -16,7 +16,7 @@ export async function getMenuItems(categoryId: string) {
       image: item.image,
       category: categoryId,
       promotion: {
-        price: item.promotion?.price / 100,
+        promotionPrice: item.promotion?.promotionPrice / 100,
         inPromotion: item.promotion?.inPromotion,
       },
     })),
@@ -44,7 +44,7 @@ export async function getAllMenuItens() {
       },
       promotion: item.promotion
         ? {
-            price: item.promotion.price / 100,
+            promotionPrice: item.promotion.promotionPrice / 100,
             inPromotion: item.promotion.inPromotion,
           }
         : undefined,

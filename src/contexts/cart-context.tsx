@@ -93,7 +93,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       item.selectedOption === "half"
         ? item.halfPrice
         : item.promotion?.inPromotion
-          ? item.promotion.price
+          ? item.promotion.promotionPrice
           : item.price;
     return sum + price * item.quantity;
   }, 0);

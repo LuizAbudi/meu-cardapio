@@ -9,7 +9,7 @@ const menuItemSchema = new mongoose.Schema(
     image: { type: String },
     promotion: {
       inPromotion: { type: Boolean, required: true, default: false },
-      price: {
+      promotionPrice: {
         type: Number,
         required: function (this: { promotion: { inPromotion: boolean } }) {
           return this.promotion.inPromotion;

@@ -19,7 +19,7 @@ export interface MenuItem {
   createdAt: Date;
   updatedAt: Date;
   promotion?: {
-    price: number;
+    promotionPrice: number;
     inPromotion: boolean;
   };
 }
